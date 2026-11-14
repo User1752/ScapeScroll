@@ -1,0 +1,68 @@
+'use strict';
+
+function registerAppRoutes(app) {
+  const { registerProxyRoutes } = require('./proxy');
+  const { registerRepoRoutes } = require('./repos');
+  const { registerLocalRoutes } = require('./local');
+  const { registerSourceRoutes } = require('./sources');
+  const { registerSourceImportRoutes } = require('./source-import');
+  const { registerSourceCatalogRoutes } = require('./source-catalog');
+  const { registerAnimeSourceImportRoutes } = require('./anime-source-import');
+  const { registerLibraryRoutes, startDailyLibrarySync } = require('./library');
+  const { registerDownloadRoutes } = require('./downloads');
+  const { registerReviewRoutes } = require('./reviews');
+  const { registerListRoutes } = require('./lists');
+  const { registerAnalyticsRoutes } = require('./analytics');
+  const { registerAchievementRoutes } = require('./achievements');
+  const { registerMangaUpdatesRoutes } = require('./mangaupdates');
+  const { registerCalendarRoutes } = require('./calendar');
+  const { registerThemePresetRoutes } = require('./theme-presets');
+  const { registerCoverSearchRoutes } = require('./cover-search');
+  const { registerHealthCheckRoutes } = require('./health-check');
+  const { registerSystemHealthRoutes } = require('./system-health');
+  const { registerSettingsRoutes } = require('./settings');
+  const { registerBackupRoutes } = require('./backup');
+  const { registerOpdsRoutes } = require('./opds');
+  const { registerMihonImportRoutes } = require('./mihon-import');
+  const { registerAuthRoutes } = require('./auth');
+  const { registerAnimeRoutes } = require('./anime');
+  const { registerDiscordPresenceRoutes } = require('./discord-presence');
+  const { registerSuwayomiRoutes } = require('./suwayomi');
+  const { registerVersionRoutes } = require('./version');
+  const { registerProgressRoutes } = require('./progress');
+  const { registerCoverRoutes } = require('./covers');
+
+  registerAuthRoutes(app);
+  registerAnimeRoutes(app);
+  registerProxyRoutes(app);
+  registerRepoRoutes(app);
+  registerLocalRoutes(app);
+  registerSourceRoutes(app);
+  registerSourceImportRoutes(app);
+  registerSourceCatalogRoutes(app);
+  registerAnimeSourceImportRoutes(app);
+  registerLibraryRoutes(app);
+  startDailyLibrarySync();
+  registerDownloadRoutes(app);
+  registerReviewRoutes(app);
+  registerListRoutes(app);
+  registerAnalyticsRoutes(app);
+  registerAchievementRoutes(app);
+  registerMangaUpdatesRoutes(app);
+  registerCalendarRoutes(app);
+  registerThemePresetRoutes(app);
+  registerCoverSearchRoutes(app);
+  registerHealthCheckRoutes(app);
+  registerSystemHealthRoutes(app);
+  registerSettingsRoutes(app);
+  registerBackupRoutes(app);
+  registerProgressRoutes(app);
+  registerCoverRoutes(app);
+  registerOpdsRoutes(app);
+  registerMihonImportRoutes(app);
+  registerDiscordPresenceRoutes(app);
+  registerSuwayomiRoutes(app);
+  registerVersionRoutes(app);
+}
+
+module.exports = { registerAppRoutes };

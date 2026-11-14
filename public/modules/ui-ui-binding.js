@@ -1,0 +1,1463 @@
+// ============================================================================
+// UI BINDING
+// ============================================================================
+
+const DEFAULT_CUSTOM_THEME_HEX = '#913fe2';
+const DEFAULT_CUSTOM_THEME_HEX_UPPER = DEFAULT_CUSTOM_THEME_HEX.toUpperCase();
+let _alFlushLifecycleHandlersBound = false;
+
+function _bindAniListFlushLifecycleHandlers() {
+  if (_alFlushLifecycleHandlersBound) return;
+  _alFlushLifecycleHandlersBound = true;
+
+  const flush = () => {
+    if (typeof anilistFlushPendingProgress === 'function') {
+      anilistFlushPendingProgress().catch(() => {});
+    }
+  };
+
+  window.addEventListener('pagehide', flush);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flush();
+  });
+}
+
+// Reflects state.settings.readingMode on the reader sidebar's quick-switch
+// buttons — called on bindUI() setup, after a manual click, and from
+// loadChapter() (ui-add-to-list-modal.js) since autoWebtoonDetect can
+// silently overwrite readingMode per-title without any click ever
+// happening, and the buttons would otherwise show a stale mode.
+function syncReaderQuickModeButtons() {
+  document.querySelectorAll('.reader-quick-mode-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.mode === state.settings.readingMode);
+  });
+}
+
+/** Restores whatever view/context a nav-stack entry points at (used by the back button). */
+function _restoreNavigationEntry(entry) {
+  if (!entry) return;
+  if (entry.view === 'manga-details' && entry.context.mangaId && entry.context.sourceId) {
+    loadMangaDetails(entry.context.mangaId, undefined, entry.context.title || '', false, entry.context.sourceId);
+  } else {
+    setView(entry.view, entry.context, true);
+  }
+}
+
+function bindUI() {
+  initAdvancedFilters();
+  _bindAniListFlushLifecycleHandlers();
+
+  // Sidebar toggle (mobile)
+  const toggle   = $("sidebarToggle");
+  const backdrop = $("sidebarBackdrop");
+  if (toggle)   toggle.onclick   = () => document.body.classList.toggle("sidebar-open");
+  if (backdrop) backdrop.onclick = () => document.body.classList.remove("sidebar-open");
+
+  // Nav links
+  document.querySelectorAll(".nav-link[data-view]").forEach(link => {
+    link.onclick = (e) => {
+      e.preventDefault();
+      setView(link.dataset.view);
+      document.body.classList.remove("sidebar-open");
+    };
+  });
+
+  // Back buttons
+  const backBtn = $("backBtn");
+  if (backBtn) {
+    backBtn.onclick = () => _restoreNavigationEntry(navigationManager.goBack());
+  }
+
+  // Search
+  const searchBtn   = $("searchBtn");
+  const searchInput = $("searchInput");
+  if (searchBtn)   searchBtn.onclick = () => { clearTimeout(_liveSearchTimer); search(); };
+  if (searchInput) {
+    searchInput.onkeypress = (e) => { if (e.key === "Enter") { clearTimeout(_liveSearchTimer); search(); } };
+    searchInput.oninput = () => {
+      clearTimeout(_liveSearchTimer);
+      _liveSearchTimer = setTimeout(() => search(), 450);
+    };
+  }
+  const searchAllSourcesToggle = $("searchAllSourcesToggle");
+  const sourceSelectForSearch  = $("sourceSelect");
+  if (searchAllSourcesToggle) {
+    searchAllSourcesToggle.onchange = (e) => {
+      if (sourceSelectForSearch) sourceSelectForSearch.disabled = e.target.checked;
+      clearTimeout(_liveSearchTimer);
+      search();
+    };
+  }
+
+  // Theme toggle
+  const themeBtn = $("themeToggle");
+  if (themeBtn) themeBtn.onclick = toggleTheme;
+
+  // Settings button (sidebar)
+  const settingsBtnSidebar = $("btn-settings-sidebar");
+  if (settingsBtnSidebar) settingsBtnSidebar.onclick = showSettings;
+
+  const readerSettingsBtn = $("readerSettingsBtn");
+  if (readerSettingsBtn) readerSettingsBtn.onclick = showSettings;
+  const readerSidebarToggle = $("readerSidebarToggle");
+  if (readerSidebarToggle) {
+    readerSidebarToggle.onclick = () => {
+      const reader = $("reader");
+      if (reader) reader.classList.toggle("reader-sidebar-collapsed");
+    };
+  }
+
+  // Reader controls
+  const closeReader = $("closeReader");
+  const prevPage    = $("prevPage");
+  const nextPage    = $("nextPage");
+  const prevPageCorner = $("prevPageCorner");
+  const nextPageCorner = $("nextPageCorner");
+
+  if (closeReader) closeReader.onclick = () => hideReader();
+
+  const goPrevPage = () => {
+    if (state.settings.readingMode === "rtl") { navigateBook("backward"); return; }
+    if (state.settings.readingMode === "ltr") { navigateLTR("backward"); return; }
+    if (state.currentPageIndex === 0) {
+      goToPrevChapter();
+    } else {
+      state.currentPageIndex--;
+      renderPage();
+    }
+  };
+
+  const goNextPage = () => {
+    if (state.settings.readingMode === "rtl") { navigateBook("forward"); return; }
+    if (state.settings.readingMode === "ltr") { navigateLTR("forward"); return; }
+    if (state.currentPageIndex === (state.currentChapter?.pages?.length ?? 1) - 1) {
+      goToNextChapter();
+    } else {
+      state.currentPageIndex++;
+      renderPage();
+    }
+  };
+
+  if (prevPage) prevPage.onclick = goPrevPage;
+  if (nextPage) nextPage.onclick = goNextPage;
+  if (prevPageCorner) prevPageCorner.onclick = () => goToPrevChapter();
+  if (nextPageCorner) nextPageCorner.onclick = () => goToNextChapter();
+
+  // Reading mode quick-switch — the sidebar already covers most of what a
+  // Kotatsu-style "in-reader quick menu" needs (page nav, zoom, autoscroll,
+  // all reachable without leaving the reader); the one thing still missing
+  // was switching manga/webtoon/RTL/LTR itself, which used to mean opening
+  // the full Settings modal instead of just clicking a button right here.
+  // Reuses the exact same 3-line effect the Settings modal's own mode
+  // dropdown already had (ui-settings-modal.js) — save, then re-render the
+  // page that's already open in the new mode.
+  syncReaderQuickModeButtons();
+  document.querySelectorAll('.reader-quick-mode-btn').forEach((btn) => {
+    btn.onclick = () => {
+      state.settings.readingMode = btn.dataset.mode;
+      saveSettings();
+      syncReaderQuickModeButtons();
+      if (state.currentChapter) {
+        if (typeof showReader === 'function') showReader();
+        if (typeof renderPage === 'function') renderPage();
+      }
+    };
+  });
+
+  // Zoom controls
+  const zoomIn    = $("zoomIn");
+  const zoomOut   = $("zoomOut");
+  const zoomReset = $("zoomReset");
+  if (zoomIn)    zoomIn.onclick    = () => applyZoom(+0.1);
+  if (zoomOut)   zoomOut.onclick   = () => applyZoom(-0.1);
+  if (zoomReset) zoomReset.onclick = () => {
+    const mode = state.settings.readingMode;
+    state.zoomLevel = (mode === "ltr" || mode === "rtl") ? 1.2 : 1.0;
+    updateZoomUI();
+    renderPage();
+  };
+
+  // Incognito reading — shared toggle between the manga and EPUB readers
+  const readerIncognitoToggle = $("readerIncognitoToggle");
+  const epubIncognitoToggle   = $("epubIncognitoToggle");
+  if (readerIncognitoToggle) readerIncognitoToggle.onclick = toggleIncognitoReading;
+  if (epubIncognitoToggle)   epubIncognitoToggle.onclick   = toggleIncognitoReading;
+
+  // AutoScroll controls
+  const autoScrollToggle = $("autoScrollToggle");
+  const autoScrollSpeed  = $("autoScrollSpeed");
+  if (autoScrollToggle) autoScrollToggle.onclick = toggleAutoScroll;
+  if (autoScrollSpeed) {
+    autoScrollSpeed.value = state.autoScroll.speed;
+    autoScrollSpeed.oninput = (e) => {
+      state.autoScroll.speed = parseInt(e.target.value, 10);
+      const labels = ["Slow", "Medium", "Fast", "Faster", "Fastest"];
+      const labelEl = $("autoScrollSpeedLabel");
+      if (labelEl) labelEl.textContent = labels[state.autoScroll.speed - 1] || "Medium";
+      if (state.autoScroll.enabled) { stopAutoScroll(); startAutoScroll(); }
+    };
+  }
+
+  // Keyboard shortcuts in reader
+  document.addEventListener("keydown", (e) => {
+    if ($("reader")?.classList.contains("hidden")) return;
+    const mode = state.settings.readingMode;
+    if (e.key === "ArrowRight" || e.key === "d") {
+      if (mode !== "webtoon") {
+        if (mode === "rtl")      { navigateBook("backward"); }
+        else if (mode === "ltr") { navigateLTR("forward"); }
+        else { if (state.currentPageIndex < (state.currentChapter?.pages?.length ?? 1) - 1) { state.currentPageIndex++; renderPage(); } else goToNextChapter(); }
+      }
+    } else if (e.key === "ArrowLeft" || e.key === "a") {
+      if (mode !== "webtoon") {
+        if (mode === "rtl")      { navigateBook("forward"); }
+        else if (mode === "ltr") { navigateLTR("backward"); }
+        else { if (state.currentPageIndex > 0) { state.currentPageIndex--; renderPage(); } else goToPrevChapter(); }
+      }
+    } else if (e.key === "Escape") {
+      hideReader();
+    } else if (e.key === "+" || e.key === "=") {
+      applyZoom(+0.1);
+    } else if (e.key === "-" || e.key === "_") {
+      applyZoom(-0.1);
+    }
+  });
+
+  // Advanced search buttons
+  const advBtn   = $("advancedSearchBtn");
+  const advInput = $("advancedSearchInput");
+  const randBtn  = $("randomMangaBtn");
+  if (advBtn)   advBtn.onclick   = () => advancedSearch();
+  if (advInput) advInput.onkeypress = (e) => { if (e.key === "Enter") advancedSearch(); };
+  if (randBtn)  randBtn.onclick  = openRandomPickerDrawer;
+
+  const advAllSourcesToggle = $("advancedSearchAllSourcesToggle");
+  const advSourceSelectForSearch = $("advancedSourceSelect");
+  if (advAllSourcesToggle) {
+    advAllSourcesToggle.onchange = (e) => {
+      if (advSourceSelectForSearch) advSourceSelectForSearch.disabled = e.target.checked;
+      advancedSearch();
+    };
+  }
+
+  // Initialize advanced filters
+  initAdvancedFilters();
+
+  // Library status filter
+  const libFilter = $("libraryStatusFilter");
+  if (libFilter) libFilter.onchange = (e) => {
+    // If triggered programmatically by setView to sync the custom select label, skip
+    if (e.target.dataset.settingSync === "1") return;
+    e.target.dataset.userChanged = "1";
+    renderLibrary();
+  };
+
+  // Library category filter
+  const libCatFilter = $("libraryCategoryFilter");
+  if (libCatFilter) libCatFilter.onchange = renderLibrary;
+
+  // Library tracker filter
+  const libTrackerFilter = $("libraryTrackerFilter");
+  if (libTrackerFilter) libTrackerFilter.onchange = renderLibrary;
+
+  // Library text search (debounced — avoids a full grid rebuild on every keystroke)
+  const libSearchInput = $("librarySearchInput");
+  if (libSearchInput) libSearchInput.oninput = debounce(renderLibrary, 200);
+
+  // Manage categories (the gear beside the category filter)
+  const btnMgmtCat = $("btnManageCategories");
+  if (btnMgmtCat) btnMgmtCat.onclick = () => showManageCategoriesModal();
+
+  // Filter the library by tags (ui-library-tags.js)
+  const btnTags = $("btnLibraryTags");
+  if (btnTags) btnTags.onclick = () => showLibraryTagsPanel();
+
+  // Sort library button
+  const btnSort = $("btnSortLibrary");
+  if (btnSort) btnSort.onclick = () => openLibrarySortDrawer();
+
+  // Migrate library button
+  const btnMigrate = $("btnMigrateLibrary");
+  if (btnMigrate) btnMigrate.onclick = () => showMigrateModal();
+
+  // Migrate All button — library-wide upgrade scan (see showMigrateAllModal, ui-migrate.js)
+  const btnMigrateAll = $("btnMigrateAllLibrary");
+  if (btnMigrateAll) btnMigrateAll.onclick = () => showMigrateAllModal();
+
+  // Duplicate scan button
+  const btnDupes = $("btnScanDuplicates");
+  if (btnDupes) btnDupes.onclick = () => showDuplicateScanModal();
+
+  // Cover Scan button — find missing/low-quality covers, review AniList candidates (ui-cover-scan.js)
+  const btnCoverScan = $("btnCoverScan");
+  if (btnCoverScan) btnCoverScan.onclick = () => showCoverScanModal();
+
+  // Language toggle button
+  const langBtn = $("langToggleBtn");
+  if (langBtn) {
+    langBtn.textContent = currentLanguage.split('-')[0].toUpperCase();
+    langBtn.onclick = () => setLanguage(currentLanguage === 'pt-PT' ? 'en' : 'pt');
+  }
+}
+
+// ============================================================================
+
+// CUSTOMIZATION
+
+// ============================================================================
+
+
+
+const CUSTOM_PRESETS_KEY = 'scrollscape_custom_presets';
+
+const CUSTOM_ACTIVE_KEY  = 'scrollscape_active_custom';
+const CUSTOM_PRESETS_API = '/api/theme-presets';
+const CUSTOM_PRESETS_UNSYNCED_KEY = 'scrollscape_custom_presets_unsynced';
+
+const CUSTOM_FONT_OPTIONS = [
+  { value: '', label: 'System UI' },
+  { value: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", label: 'Segoe UI' },
+  { value: "'Trebuchet MS', 'Segoe UI', sans-serif", label: 'Trebuchet MS' },
+  { value: "'Georgia', 'Times New Roman', serif", label: 'Georgia' },
+  { value: "'Courier New', monospace", label: 'Courier New' },
+  { value: "'Orbitron', sans-serif", label: 'Orbitron' }
+];
+
+// Preset data is untrusted: it comes out of localStorage (anything on this
+// origin can write there), out of the on-disk presets file that PUT
+// /api/theme-presets also feeds, and out of files the owner imports from
+// someone else. Every read goes through _normalizeCustomPreset() below, which
+// is the single place that decides what a preset may contain — the render code
+// then only ever sees an id that is safe in an attribute, numbers that are
+// numbers, and URLs that cannot leave a CSS url('...') or carry a script scheme.
+// Same id alphabet as PRESET_ID_RE in server/modules/theme-presets/service.js.
+var CUSTOM_PRESET_ID_RE = /^[A-Za-z0-9_-]{1,120}$/;
+var CUSTOM_PRESET_NUM_KEYS = [
+  'bgDim', 'bgOpac', 'bgPosX', 'bgPosY',
+  'charDim', 'charDark', 'charPosX', 'charPosY',
+  'headerDim', 'headerOpac', 'headerPosX', 'headerPosY',
+  'cornerDim', 'cornerDark', 'cornerPosX', 'cornerPosY'
+];
+var CUSTOM_PRESET_URL_KEYS = ['bgUrl', 'charUrl', 'headerUrl', 'cornerUrl'];
+var CUSTOM_PRESET_COLOR_KEYS = ['paletteColor', 'buttonColor', 'sidebarTextColor'];
+
+// Shared callback so initColorPicker can trigger livePreview
+var _cpLivePreviewCb = null;
+// Tracks whether we are currently editing an existing preset
+var _editingPresetId = null;
+var _customPresetSyncTimer = null;
+var _customPresetSaveSeq = 0;
+
+async function _fetchCustomPresetsFromDisk() {
+  try {
+    var res = await fetch(CUSTOM_PRESETS_API, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var data = await res.json();
+    return Array.isArray(data && data.presets) ? data.presets : [];
+  } catch (_) {
+    return null;
+  }
+}
+
+function _refreshPresetViewsIfVisible() {
+  var customizeView = document.getElementById('view-customize');
+  if (customizeView && !customizeView.classList.contains('hidden')) {
+    renderCustomizeView();
+  }
+  var themesView = document.getElementById('view-themes');
+  if (themesView && !themesView.classList.contains('hidden') && typeof renderThemesView === 'function') {
+    renderThemesView();
+  }
+}
+
+// Set while the last save never reached the server. The server copy replaces this browser's list on every load
+// (syncCustomPresetsFromDisk), so without the flag a save that failed would be undone by the next reload: the
+// theme comes back as the server last had it, with the sliders of the edit (a focus point, say) gone.
+function _customPresetsUnsynced() {
+  try { return localStorage.getItem(CUSTOM_PRESETS_UNSYNCED_KEY) === '1'; } catch (_) { return false; }
+}
+
+function _markCustomPresetsUnsynced(unsynced) {
+  try {
+    if (unsynced) localStorage.setItem(CUSTOM_PRESETS_UNSYNCED_KEY, '1');
+    else localStorage.removeItem(CUSTOM_PRESETS_UNSYNCED_KEY);
+  } catch (_) { /* storage unavailable: nothing to remember */ }
+}
+
+function _queueCustomPresetDiskSave(arr) {
+  if (_customPresetSyncTimer) clearTimeout(_customPresetSyncTimer);
+  // Flagged as soon as the save is queued: closing the page before the request leaves must not lose the edit either.
+  _markCustomPresetsUnsynced(true);
+  var seq = ++_customPresetSaveSeq;
+  _customPresetSyncTimer = setTimeout(async function() {
+    _customPresetSyncTimer = null;
+    try {
+      var res = await fetch(CUSTOM_PRESETS_API, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ presets: Array.isArray(arr) ? arr : [] }),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      // Only the newest save may clear the flag: an older request that finishes late says nothing about the list saved after it.
+      if (seq === _customPresetSaveSeq) _markCustomPresetsUnsynced(false);
+    } catch (_) {
+      // This browser keeps the list (localStorage) and the flag stays set: the next load sends it again.
+      if (typeof showToast === 'function') {
+        showToast(t('customization.toastPresetSyncFailed'), t('customization.toastPresetSyncFailedHint'), 'error');
+      }
+    }
+  }, 180);
+}
+
+async function syncCustomPresetsFromDisk() {
+  var local = getCustomPresets();
+  var remote = await _fetchCustomPresetsFromDisk();
+  if (remote === null) return;
+
+  // An earlier save never reached the server, so this browser's list is the newer one: send it instead of replacing it.
+  if (_customPresetsUnsynced()) {
+    _queueCustomPresetDiskSave(local);
+    return;
+  }
+
+  if (remote.length > 0) {
+    localStorage.setItem(CUSTOM_PRESETS_KEY, JSON.stringify(remote));
+    _refreshPresetViewsIfVisible();
+    return;
+  }
+
+  if (local.length > 0) {
+    _queueCustomPresetDiskSave(local);
+  }
+}
+
+
+
+function getCustomPresets() {
+
+  try {
+    var list = JSON.parse(localStorage.getItem(CUSTOM_PRESETS_KEY) || '[]');
+    // Wrapped, not .map(_normalizeCustomPreset): map would pass the index as the
+    // 2nd argument, and every entry after the first would count as "id optional".
+    return (Array.isArray(list) ? list : []).map(function(p) { return _normalizeCustomPreset(p); }).filter(Boolean);
+  } catch (e) { return []; }
+
+}
+
+function saveCustomPresets(arr) {
+
+  localStorage.setItem(CUSTOM_PRESETS_KEY, JSON.stringify(arr));
+  _queueCustomPresetDiskSave(arr);
+
+}
+
+function getActiveCustom() {
+
+  try {
+    var active = JSON.parse(localStorage.getItem(CUSTOM_ACTIVE_KEY) || 'null');
+    // The id is optional here: the live editor stores the working config without one.
+    return active ? _normalizeCustomPreset(active, true) : null;
+  } catch (e) { return null; }
+
+}
+
+function setActiveCustom(cfg) {
+
+  if (cfg) {
+    localStorage.setItem(CUSTOM_ACTIVE_KEY, JSON.stringify(cfg));
+    // Keep theme activation exclusive: custom presets disable shop/community themes.
+    resetBaseThemeForCustomActivation();
+  }
+
+  else     localStorage.removeItem(CUSTOM_ACTIVE_KEY);
+
+}
+
+function resetBaseThemeForCustomActivation() {
+  if (typeof window.getActiveTheme !== 'function' || typeof window.applyTheme !== 'function') return;
+  var current = window.getActiveTheme();
+  var appliedThemeId = document.documentElement.getAttribute('data-color-theme') || '';
+  if ((current && current !== 'default') || appliedThemeId) {
+    // Not setActiveTheme('default') here on purpose — its own side effect
+    // clears the custom overlay this function is called right after setting
+    // (see the caller, setActiveCustom()). Still needs the same server push
+    // setActiveTheme() would have done, so the server-side record doesn't
+    // silently drift from what's actually active in this browser.
+    localStorage.setItem('scrollscape_active_theme', 'default');
+    if (typeof window._pushProgressionToServer === 'function') {
+      window._pushProgressionToServer({ activeTheme: 'default' });
+    }
+    window.applyTheme('default');
+  }
+}
+
+
+
+// ── Palette colour helpers ───────────────────────────────────────────────────
+function _hexToHsv(hex) {
+  var r=parseInt(hex.slice(1,3),16)/255, g=parseInt(hex.slice(3,5),16)/255, b=parseInt(hex.slice(5,7),16)/255;
+  var max=Math.max(r,g,b), min=Math.min(r,g,b), d=max-min, h=0, s=max===0?0:d/max, v=max;
+  if(max!==min){switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;}h*=60;}
+  return {h:h,s:s,v:v};
+}
+function _hsvToHex(h,s,v){
+  h=((h%360)+360)%360;
+  var i=Math.floor(h/60)%6,f=h/60-Math.floor(h/60);
+  var p=v*(1-s),q=v*(1-f*s),t=v*(1-(1-f)*s);
+  var rgb=[[v,t,p],[q,v,p],[p,v,t],[p,q,v],[t,p,v],[v,p,q]][i];
+  return '#'+rgb.map(function(x){return Math.round(Math.max(0,Math.min(1,x))*255).toString(16).padStart(2,'0');}).join('');
+}
+function _derivePalette(hex){
+  var c=_hexToHsv(hex);
+  return {
+    primary: hex,
+    dark:  _hsvToHex(c.h, Math.min(1,c.s*1.05), c.v*0.62),
+    light: _hsvToHex(c.h, Math.max(0,c.s*0.55), Math.min(1,c.v+0.18))
+  };
+}
+
+function _sanitizeCustomFontFamily(value) {
+  var raw = String(value || '');
+  var found = CUSTOM_FONT_OPTIONS.find(function(opt) { return opt.value === raw; });
+  return found ? found.value : '';
+}
+
+function _sanitizeCustomPercent(value, fallback) {
+  var num = Number(value);
+  if (!isFinite(num)) return fallback;
+  return Math.max(0, Math.min(100, Math.round(num)));
+}
+
+// Returns a URL that is safe to drop into url('...') (CSS) and, HTML-escaped,
+// into an attribute: only http(s), data:image/ and scheme-less (relative)
+// values survive, and every character that could end the quoted CSS string or
+// the attribute is percent-encoded rather than rejected, so ordinary URLs
+// (parentheses, accents, query strings) keep working. '' means "no usable URL".
+function _sanitizeCustomUrl(value) {
+  // 1500 matches what the server keeps (safeStr(..., 1500)). Control characters
+  // go first: browsers ignore tabs/newlines inside a scheme, so "java\tscript:"
+  // would otherwise slip past the scheme check below.
+  var s = String(value == null ? '' : value).replace(/[\x00-\x1f\x7f]/g, '').trim().slice(0, 1500);
+  var scheme = /^([a-z][a-z0-9+.-]*):/i.exec(s);
+  if (scheme) {
+    var name = scheme[1].toLowerCase();
+    var ok = name === 'http' || name === 'https' || (name === 'data' && /^data:image\//i.test(s));
+    if (!ok) return '';
+  }
+  return s.replace(/[\s'"\\<>`]/g, function(c) {
+    var n = c.charCodeAt(0);
+    return n < 128 ? '%' + ('0' + n.toString(16)).slice(-2).toUpperCase() : encodeURIComponent(c);
+  });
+}
+
+function _sanitizeCustomHexColor(value) {
+  var s = String(value == null ? '' : value).trim();
+  return /^#[0-9a-f]{6}$/i.test(s) ? s : '';
+}
+
+// The one gate for preset data read from anywhere untrusted (see the comment on
+// CUSTOM_PRESET_ID_RE). Returns a fresh object holding only known keys:
+//   id      kept only if it matches CUSTOM_PRESET_ID_RE; without a valid id the
+//           entry is dropped, unless idOptional (the live editor's working config
+//           and the "active" slot legitimately have none)
+//   numbers Number()-coerced and clamped to 0..100; a value that is not a finite
+//           number is left out so the renderer's own defaults apply
+//   urls    _sanitizeCustomUrl      colours  #rrggbb or left out
+//   font    only the values in CUSTOM_FONT_OPTIONS
+// Unknown keys are dropped. Idempotent, so applying it twice is harmless.
+function _normalizeCustomPreset(p, idOptional) {
+  if (!p || typeof p !== 'object' || Array.isArray(p)) return null;
+  var out = {};
+  var id = p.id == null ? '' : String(p.id);
+  if (CUSTOM_PRESET_ID_RE.test(id)) out.id = id;
+  else if (!idOptional) return null;
+  if (out.id !== undefined || p.name != null) out.name = String(p.name == null ? '' : p.name).slice(0, 80);
+  CUSTOM_PRESET_NUM_KEYS.forEach(function(k) {
+    if (p[k] == null || p[k] === '') return;
+    var n = Number(p[k]);
+    if (isFinite(n)) out[k] = Math.max(0, Math.min(100, n));
+  });
+  CUSTOM_PRESET_URL_KEYS.forEach(function(k) {
+    if (p[k] != null) out[k] = _sanitizeCustomUrl(p[k]);
+  });
+  CUSTOM_PRESET_COLOR_KEYS.forEach(function(k) {
+    if (p[k] != null) out[k] = _sanitizeCustomHexColor(p[k]);
+  });
+  if (p.fontFamily != null) out.fontFamily = _sanitizeCustomFontFamily(p.fontFamily);
+  return out;
+}
+
+// Import = the one ingress where a stranger's file reaches the stored list, so it
+// is also where entries are counted: `skipped` is how many had no usable id.
+function _mergeImportedCustomPresets(current, incoming) {
+  var byId = new Map();
+  var skipped = 0;
+  (current || []).forEach(function(p) {
+    var n = _normalizeCustomPreset(p);
+    if (n) byId.set(n.id, n);
+  });
+  (incoming || []).forEach(function(p) {
+    var n = _normalizeCustomPreset(p);
+    if (n) byId.set(n.id, n); else skipped++;
+  });
+  return { presets: Array.from(byId.values()).slice(0, 200), skipped: skipped };
+}
+
+function applyCustomization(cfg) {
+
+  // Second line of defence: callers pass getActiveCustom()/preset objects that
+  // are already normalised, but this is the function that pastes URLs into
+  // cssText, so it does not rely on that.
+  cfg = cfg ? _normalizeCustomPreset(cfg, true) : cfg;
+
+  ['custom-char', 'custom-corner', 'custom-bg-layer', 'custom-header-layer'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { if (el._obs) el._obs.disconnect(); el.remove(); }
+  });
+
+  // Reset topbar inline styles set by a previous header image
+  var _topbar = document.querySelector('.topbar');
+  if (_topbar) { _topbar.style.minHeight = ''; _topbar.style.position = ''; _topbar.style.overflow = ''; }
+
+  var styleEl = document.getElementById('custom-live-style');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'custom-live-style';
+    document.head.appendChild(styleEl);
+  }
+  var sidebarTextStyleEl = document.getElementById('custom-sidebar-text-style');
+  if (!sidebarTextStyleEl) {
+    sidebarTextStyleEl = document.createElement('style');
+    sidebarTextStyleEl.id = 'custom-sidebar-text-style';
+    document.head.appendChild(sidebarTextStyleEl);
+  }
+
+  if (!cfg) { styleEl.textContent = ''; sidebarTextStyleEl.textContent = ''; return; }
+
+  var bgUrl      = cfg.bgUrl      || '';
+  var bgDim      = cfg.bgDim      != null ? cfg.bgDim      : 0;
+  var bgOpac     = cfg.bgOpac     != null ? cfg.bgOpac     : 0;
+  var bgPosX     = _sanitizeCustomPercent(cfg.bgPosX, 50);
+  var bgPosY     = _sanitizeCustomPercent(cfg.bgPosY, 50);
+  var headerUrl  = cfg.headerUrl  || '';
+  var headerDim  = cfg.headerDim  != null ? cfg.headerDim  : 0;
+  var headerOpac = cfg.headerOpac != null ? cfg.headerOpac : 0;
+  var headerPosX = _sanitizeCustomPercent(cfg.headerPosX, 50);
+  var headerPosY = _sanitizeCustomPercent(cfg.headerPosY, 50);
+  var charUrl    = cfg.charUrl    || '';
+  var charDim    = cfg.charDim    != null ? cfg.charDim    : 0;
+  var charDark   = cfg.charDark   != null ? cfg.charDark   : 0;
+  var charPosX   = _sanitizeCustomPercent(cfg.charPosX, 50);
+  var charPosY   = _sanitizeCustomPercent(cfg.charPosY, 50);
+  var cornerUrl  = cfg.cornerUrl  || '';
+  var cornerDim  = cfg.cornerDim  != null ? cfg.cornerDim  : 0;
+  var cornerDark = cfg.cornerDark != null ? cfg.cornerDark : 0;
+  var cornerPosX = _sanitizeCustomPercent(cfg.cornerPosX, 50);
+  var cornerPosY = _sanitizeCustomPercent(cfg.cornerPosY, 50);
+  var fontFamily = _sanitizeCustomFontFamily(cfg.fontFamily);
+
+  var css = '';
+  if (fontFamily) {
+    css += "body, .sidebar-brand-text, .brand, .section-title, h1, h2, h3, h4, h5, h6 { font-family:" + fontFamily + " !important; }\n";
+  }
+  styleEl.textContent = css;
+
+  if (headerUrl) {
+    var hdrLayer = document.createElement('div');
+    hdrLayer.id = 'custom-header-layer';
+    hdrLayer.style.cssText = 'position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;' +
+        "background:linear-gradient(rgba(0,0,0," + (headerDim/100) + "),rgba(0,0,0," + (headerDim/100) + ")),url('" + headerUrl + "') " + headerPosX + "% " + headerPosY + "%/cover no-repeat;" +
+      'opacity:' + ((100 - headerOpac) / 100);
+    var topbarEl = document.querySelector('.topbar');
+    if (topbarEl) {
+      topbarEl.style.position = 'relative';
+      topbarEl.style.overflow = 'hidden';
+      topbarEl.appendChild(hdrLayer);
+    }
+  }
+
+  if (bgUrl) {
+    var bgLayer = document.createElement('div');
+    bgLayer.id = 'custom-bg-layer';
+    bgLayer.style.cssText = 'position:fixed;inset:0;z-index:-1;pointer-events:none;' +
+      "background:linear-gradient(rgba(0,0,0," + (bgDim/100) + "),rgba(0,0,0," + (bgDim/100) + ")),url('" + bgUrl + "') " + bgPosX + "% " + bgPosY + "%/cover fixed;" +
+      'opacity:' + ((100 - bgOpac) / 100);
+    document.body.appendChild(bgLayer);
+  }
+
+  function _mkOverlay(id, wrapCss, imgCss, opac, src, brightness) {
+    var w = document.createElement('div');
+    w.id = id; w.style.cssText = wrapCss + ';opacity:' + opac;
+    var i = document.createElement('img');
+    i.src = src; i.alt = ''; i.style.cssText = imgCss;
+    if (brightness != null) i.style.filter = 'brightness(' + brightness + ')';
+    w.appendChild(i); document.body.appendChild(w);
+    var re = document.getElementById('reader');
+    if (re) {
+      var sv = function() { w.style.display = re.classList.contains('hidden') ? '' : 'none'; };
+      var ob = new MutationObserver(sv);
+      ob.observe(re, { attributes: true, attributeFilter: ['class'] });
+      w._obs = ob; sv();
+    }
+  }
+
+  // Both overlays at left:0 (left edge of screen).
+  // z-index must exceed the sidebar (100) so they are visible.
+  // pointer-events:none is already set, so sidebar/content clicks pass through.
+  // Left Column (z-index:102) appears on top of Corner Card (z-index:101).
+
+  if (charUrl) {
+    _mkOverlay(
+      'custom-char',
+      'position:fixed;bottom:0;left:0;width:240px;height:100vh;pointer-events:none;overflow:hidden;z-index:102',
+      'position:absolute;left:' + charPosX + '%;top:' + charPosY + '%;width:100%;height:auto;max-height:90vh;object-fit:contain;transform:translate(-' + charPosX + '%,-' + charPosY + '%);-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0.08) 12%,rgba(0,0,0,0.24) 26%,rgba(0,0,0,0.52) 40%,rgba(0,0,0,0.8) 54%,rgba(0,0,0,1) 68%,rgba(0,0,0,1) 100%);mask-image:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0.08) 12%,rgba(0,0,0,0.24) 26%,rgba(0,0,0,0.52) 40%,rgba(0,0,0,0.8) 54%,rgba(0,0,0,1) 68%,rgba(0,0,0,1) 100%);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:100% 100%;mask-size:100% 100%',
+      (100 - charDim) / 100, charUrl, 1 - charDark / 100
+    );
+  }
+
+  if (cornerUrl) {
+    _mkOverlay(
+      'custom-corner',
+      'position:fixed;bottom:0;left:0;width:240px;height:210px;border-radius:0 12px 0 0;pointer-events:none;overflow:hidden;z-index:101;background:rgba(0,0,0,0.18);-webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 42%);mask-image:linear-gradient(to bottom,transparent 0%,black 42%)',
+      'position:absolute;bottom:0;left:0;width:100%;height:100%;object-fit:cover;object-position:' + cornerPosX + '% ' + cornerPosY + '%',
+      (100 - cornerDim) / 100, cornerUrl, 1 - cornerDark / 100
+    );
+  }
+
+  // Apply custom palette colours directly on the root element as inline style —
+  // inline styles have higher priority than any stylesheet rule (including active themes).
+  var paletteColor = cfg.paletteColor || '';
+  var buttonColor  = cfg.buttonColor  || '';
+  if (paletteColor && /^#[0-9a-f]{6}$/i.test(paletteColor)) {
+    var pal = _derivePalette(paletteColor);
+    document.documentElement.style.setProperty('--primary',       pal.primary);
+    document.documentElement.style.setProperty('--primary-dark',  pal.dark);
+    document.documentElement.style.setProperty('--primary-light', pal.light);
+  }
+  if (buttonColor && /^#[0-9a-f]{6}$/i.test(buttonColor)) {
+    var btnPal = _derivePalette(buttonColor);
+    document.documentElement.style.setProperty('--btn-primary', btnPal.primary);
+    document.documentElement.style.setProperty('--btn-primary-dark', btnPal.dark);
+    document.documentElement.style.setProperty('--btn-primary-light', btnPal.light);
+  } else {
+    document.documentElement.style.removeProperty('--btn-primary');
+    document.documentElement.style.removeProperty('--btn-primary-dark');
+    document.documentElement.style.removeProperty('--btn-primary-light');
+  }
+
+  // The left menu's text: links (in every state, so the active and hovered ones keep the chosen colour; the active one is
+  // already set apart by its background and bar), the section labels, the app name and the Settings button. The icons follow
+  // by currentColor. Empty means the theme's own colours.
+  var sidebarTextColor = cfg.sidebarTextColor || '';
+  if (sidebarTextColor && /^#[0-9a-f]{6}$/i.test(sidebarTextColor)) {
+    sidebarTextStyleEl.textContent = '.sidebar .nav-link,.sidebar .nav-link:hover,.sidebar .nav-link.active,.sidebar .sidebar-nav-label,.sidebar .sidebar-brand-text{color:' + sidebarTextColor + '!important;}';
+  } else {
+    sidebarTextStyleEl.textContent = '';
+  }
+
+}
+
+
+
+// One saved-preset row of the Customize view. The id goes into id="..." (escaped)
+// and into inline handlers (inlineJsArg: a JSON string literal, HTML-escaped) —
+// never pasted raw, even though _normalizeCustomPreset has already restricted it.
+function _customPresetCardHtml(p, inThemes, tr) {
+  return '<div class="custom-preset-card" id="preset-card-' + escapeHtml(p.id) + '">' +
+
+    '<div class="custom-preset-info"><span class="custom-preset-name">' + escapeHtml(p.name) + '</span></div>' +
+
+    '<div class="custom-preset-actions">' +
+
+      '<button id="preset-theme-btn-' + escapeHtml(p.id) + '" class="btn secondary ' + (inThemes ? 'is-added-theme' : '') + '" onclick="togglePresetInThemes(' + inlineJsArg(p.id) + ')">' + escapeHtml(inThemes ? tr('action.addedToThemes') : tr('action.addToThemes')) + '</button>' +
+
+      '<button class="btn secondary" onclick="applyCustomPreset(' + inlineJsArg(p.id) + ')">' + escapeHtml(tr('action.apply')) + '</button>' +
+
+      '<button class="btn secondary" onclick="editCustomPreset(' + inlineJsArg(p.id) + ')">' + escapeHtml(tr('action.edit')) + '</button>' +
+
+      '<button class="btn danger" onclick="deleteCustomPreset(' + inlineJsArg(p.id) + ')">' + escapeHtml(tr('action.remove')) + '</button>' +
+
+    '</div></div>';
+}
+
+function renderCustomizeView() {
+  var tr = function(key) { return t(key); };
+
+  var presets = getCustomPresets();
+  var presetThemeIds = new Set(typeof getThemePresetIds === 'function' ? getThemePresetIds() : []);
+
+  var active  = getActiveCustom() || {};
+
+
+
+  var presetsHtml = presets.length
+
+    ? presets.map(function(p) {
+        return _customPresetCardHtml(p, presetThemeIds.has(p.id), tr);
+      }).join('')
+
+    : '<p class="muted" style="text-align:center;padding:1rem">' + escapeHtml(tr('customization.noSavedPresets')) + '</p>';
+
+
+
+  var bgu = escapeHtml(active.bgUrl || '');
+
+  var bd  = _sanitizeCustomPercent(active.bgDim, 0);
+  var bpx = _sanitizeCustomPercent(active.bgPosX, 50);
+  var bpy = _sanitizeCustomPercent(active.bgPosY, 50);
+
+  var cu  = escapeHtml(active.charUrl   || '');
+
+  var cd  = _sanitizeCustomPercent(active.charDim, 0);
+  var cpx = _sanitizeCustomPercent(active.charPosX, 50);
+  var cpy = _sanitizeCustomPercent(active.charPosY, 50);
+
+  var hu  = escapeHtml(active.headerUrl || '');
+
+  var hd  = _sanitizeCustomPercent(active.headerDim, 0);
+
+  var hpx = _sanitizeCustomPercent(active.headerPosX, 50);
+
+  var hpy = _sanitizeCustomPercent(active.headerPosY, 50);
+
+  var cou = escapeHtml(active.cornerUrl || '');
+
+  var cod = _sanitizeCustomPercent(active.cornerDim, 0);
+  var copx = _sanitizeCustomPercent(active.cornerPosX, 50);
+  var copy = _sanitizeCustomPercent(active.cornerPosY, 50);
+
+  var bgo  = _sanitizeCustomPercent(active.bgOpac, 0);
+
+  var chd  = _sanitizeCustomPercent(active.charDark, 0);
+
+  var ho   = _sanitizeCustomPercent(active.headerOpac, 0);
+
+  var cod2 = _sanitizeCustomPercent(active.cornerDark, 0);
+
+
+
+  var prevBg  = bgu ? "background:linear-gradient(rgba(0,0,0," + (bd/100) + "),rgba(0,0,0," + (bd/100) + ")),url('" + bgu + "') " + bpx + "% " + bpy + "%/cover"  : '';
+
+  var prevCh  = cu  ? "background:url('" + cu + "') " + cpx + "% " + cpy + "%/contain no-repeat" : '';
+
+  var prevHdr = hu  ? "background:linear-gradient(rgba(0,0,0," + (hd/100) + "),rgba(0,0,0," + (hd/100) + ")),url('" + hu + "') " + hpx + "% " + hpy + "%/cover no-repeat" : '';
+
+  var prevCor = cou ? "background:url('" + cou + "') " + copx + "% " + copy + "%/cover no-repeat" : '';
+  var activeFont = _sanitizeCustomFontFamily(active.fontFamily);
+  var fontOptionsHtml = CUSTOM_FONT_OPTIONS.map(function(opt) {
+    var selected = opt.value === activeFont ? ' selected' : '';
+    return '<option value="' + escapeHtml(opt.value) + '"' + selected + '>' + escapeHtml(opt.label) + '</option>';
+  }).join('');
+
+
+
+  document.getElementById('view-customize').innerHTML = '' +
+
+    '<div class="customize-page">' +
+
+      '<div class="ach-page-header">' +
+
+        '<div>' +
+
+          '<h2 class="ach-page-title">' + escapeHtml(tr('nav.customize')) + '</h2>' +
+
+          '<p class="ach-page-subtitle">' + escapeHtml(tr('customization.subtitle')) + '</p>' +
+
+        '</div>' +
+
+        '<button class="btn secondary" id="customResetBtn">' + escapeHtml(tr('action.resetAll')) + '</button>' +
+
+      '</div>' +
+
+      '<div class="customize-grid">' +
+
+        '<div class="customize-card">' +
+          '<h3 class="customize-card-title">' + escapeHtml(tr('customization.background.title')) + '</h3>' +
+          '<p class="customize-card-desc">' + escapeHtml(tr('customization.background.desc')) + '</p>' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.imageUrl')) + '</label>' +
+          '<input id="customBgUrl" class="input customize-input" type="url" placeholder="https://..." value="' + bgu + '">' +
+          '<div class="customize-preview-wrap"><div class="customize-preview" id="previewBg" style="' + prevBg + '"></div></div>' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.darkness')) + ': <span id="customBgDimVal">' + bd + '</span>%</label>' +
+          '<input id="customBgDim" class="customize-slider" type="range" min="0" max="95" value="' + bd + '">' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.transparency')) + ': <span id="customBgOpacVal">' + bgo + '</span>%</label>' +
+          '<input id="customBgOpac" class="customize-slider" type="range" min="0" max="95" value="' + bgo + '">' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.focusX')) + ': <span id="customBgPosXVal">' + bpx + '</span>%</label>' +
+          '<input id="customBgPosX" class="customize-slider" type="range" min="0" max="100" value="' + bpx + '">' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.focusY')) + ': <span id="customBgPosYVal">' + bpy + '</span>%</label>' +
+          '<input id="customBgPosY" class="customize-slider" type="range" min="0" max="100" value="' + bpy + '">' +
+        '</div>' +
+
+        '<div class="customize-card">' +
+          '<h3 class="customize-card-title">' + escapeHtml(tr('customization.leftColumn.title')) + '</h3>' +
+          '<p class="customize-card-desc">' + escapeHtml(tr('customization.leftColumn.desc')) + '</p>' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.imageUrl')) + '</label>' +
+          '<input id="customCharUrl" class="input customize-input" type="url" placeholder="https://..." value="' + cu + '">' +
+          '<div class="customize-preview-wrap"><div class="customize-preview" id="previewChar" style="' + prevCh + '"></div></div>' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.darkness')) + ': <span id="customCharDarkVal">' + chd + '</span>%</label>' +
+          '<input id="customCharDark" class="customize-slider" type="range" min="0" max="95" value="' + chd + '">' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.transparency')) + ': <span id="customCharDimVal">' + cd + '</span>%</label>' +
+          '<input id="customCharDim" class="customize-slider" type="range" min="0" max="95" value="' + cd + '">' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.focusX')) + ': <span id="customCharPosXVal">' + cpx + '</span>%</label>' +
+          '<input id="customCharPosX" class="customize-slider" type="range" min="0" max="100" value="' + cpx + '">' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.focusY')) + ': <span id="customCharPosYVal">' + cpy + '</span>%</label>' +
+          '<input id="customCharPosY" class="customize-slider" type="range" min="0" max="100" value="' + cpy + '">' +
+        '</div>' +
+
+        '<div class="customize-card">' +
+          '<h3 class="customize-card-title">' + escapeHtml(tr('customization.header.title')) + '</h3>' +
+          '<p class="customize-card-desc">' + escapeHtml(tr('customization.header.desc')) + '</p>' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.imageUrl')) + '</label>' +
+          '<input id="customHeaderUrl" class="input customize-input" type="url" placeholder="https://..." value="' + hu + '">' +
+          '<div class="customize-preview-wrap"><div class="customize-preview" id="previewHeader" style="' + prevHdr + '"></div></div>' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.darkness')) + ': <span id="customHeaderDimVal">' + hd + '</span>%</label>' +
+          '<input id="customHeaderDim" class="customize-slider" type="range" min="0" max="95" value="' + hd + '">' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.transparency')) + ': <span id="customHeaderOpacVal">' + ho + '</span>%</label>' +
+          '<input id="customHeaderOpac" class="customize-slider" type="range" min="0" max="95" value="' + ho + '">' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.header.focusX')) + ': <span id="customHeaderPosXVal">' + hpx + '</span>%</label>' +
+          '<input id="customHeaderPosX" class="customize-slider" type="range" min="0" max="100" value="' + hpx + '">' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.header.focusY')) + ': <span id="customHeaderPosYVal">' + hpy + '</span>%</label>' +
+          '<input id="customHeaderPosY" class="customize-slider" type="range" min="0" max="100" value="' + hpy + '">' +
+        '</div>' +
+
+        '<div class="customize-card">' +
+          '<h3 class="customize-card-title">' + escapeHtml(tr('customization.corner.title')) + '</h3>' +
+          '<p class="customize-card-desc">' + escapeHtml(tr('customization.corner.desc')) + '</p>' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.imageUrl')) + '</label>' +
+          '<input id="customCornerUrl" class="input customize-input" type="url" placeholder="https://..." value="' + cou + '">' +
+          '<div class="customize-preview-wrap"><div class="customize-preview" id="previewCorner" style="' + prevCor + ';border-radius:8px"></div></div>' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.darkness')) + ': <span id="customCornerDarkVal">' + cod2 + '</span>%</label>' +
+          '<input id="customCornerDark" class="customize-slider" type="range" min="0" max="95" value="' + cod2 + '">' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.transparency')) + ': <span id="customCornerDimVal">' + cod + '</span>%</label>' +
+          '<input id="customCornerDim" class="customize-slider" type="range" min="0" max="95" value="' + cod + '">' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.focusX')) + ': <span id="customCornerPosXVal">' + copx + '</span>%</label>' +
+          '<input id="customCornerPosX" class="customize-slider" type="range" min="0" max="100" value="' + copx + '">' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.focusY')) + ': <span id="customCornerPosYVal">' + copy + '</span>%</label>' +
+          '<input id="customCornerPosY" class="customize-slider" type="range" min="0" max="100" value="' + copy + '">' +
+        '</div>' +
+
+        '<div class="customize-card palette-card">' +
+          '<div class="cp-card-header">' +
+            '<h3 class="customize-card-title">' + escapeHtml(tr('customization.palette.title')) + '</h3>' +
+          '</div>' +
+          '<div class="cp-collapsible" id="cpCollapsible">' +
+            '<p class="customize-card-desc">' + escapeHtml(tr('customization.palette.desc')) + '</p>' +
+            '<canvas id="cpSB" class="cp-sb" width="260" height="130"></canvas>' +
+            '<canvas id="cpHue" class="cp-hue" width="260" height="14"></canvas>' +
+            '<div class="cp-swatches">' +
+              '<div class="cp-swatch-group"><div id="cpSwPrimary" class="cp-swatch"></div><span class="customize-label">' + escapeHtml(tr('customization.primary')) + '</span></div>' +
+              '<div class="cp-swatch-group"><div id="cpSwDark" class="cp-swatch"></div><span class="customize-label">' + escapeHtml(tr('customization.dark')) + '</span></div>' +
+              '<div class="cp-swatch-group"><div id="cpSwLight" class="cp-swatch"></div><span class="customize-label">' + escapeHtml(tr('customization.light')) + '</span></div>' +
+            '</div>' +
+            '<div style="display:flex;gap:0.5rem;align-items:center;margin-top:0.4rem">' +
+              '<label class="customize-label" style="flex:0 0 auto">' + escapeHtml(tr('customization.hex')) + '</label>' +
+              '<input id="cpHexInput" class="input customize-input" type="text" placeholder="' + DEFAULT_CUSTOM_THEME_HEX_UPPER + '" maxlength="7" value="' + escapeHtml(active.paletteColor||'') + '" style="flex:1">' +
+              ('EyeDropper' in window ? '<button class="btn secondary cp-eyedropper" id="cpEyedropper" title="Pipeta" style="padding:0.4rem 0.6rem;font-size:1rem;line-height:1">&#x1F489;</button>' : '') +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="customize-card">' +
+          '<h3 class="customize-card-title">' + escapeHtml(tr('customization.font.title')) + '</h3>' +
+          '<p class="customize-card-desc">' + escapeHtml(tr('customization.font.desc')) + '</p>' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.font.familyLabel')) + '</label>' +
+          '<select id="customFontFamily" class="input customize-input">' + fontOptionsHtml + '</select>' +
+        '</div>' +
+
+        '<div class="customize-card">' +
+          '<h3 class="customize-card-title">' + escapeHtml(tr('customization.button.title')) + '</h3>' +
+          '<p class="customize-card-desc">' + escapeHtml(tr('customization.button.desc')) + '</p>' +
+          '<canvas id="btnCpSB" class="cp-sb" width="260" height="130"></canvas>' +
+          '<canvas id="btnCpHue" class="cp-hue" width="260" height="14"></canvas>' +
+          '<div class="cp-swatches" style="margin-top:0.5rem">' +
+            '<div class="cp-swatch-group"><div id="btnCpSwatch" class="cp-swatch" style="background:' + escapeHtml(active.buttonColor || DEFAULT_CUSTOM_THEME_HEX) + '"></div><span class="customize-label">' + escapeHtml(tr('customization.button.previewPrimary')) + '</span></div>' +
+          '</div>' +
+          '<div style="display:flex;gap:0.5rem;align-items:center;margin-top:0.5rem">' +
+            '<label class="customize-label" style="flex:0 0 auto">' + escapeHtml(tr('customization.hex')) + '</label>' +
+            '<input id="btnCpHexInput" class="input customize-input" type="text" placeholder="' + DEFAULT_CUSTOM_THEME_HEX_UPPER + '" maxlength="7" value="' + escapeHtml(active.buttonColor || '') + '" style="flex:1">' +
+            ('EyeDropper' in window ? '<button class="btn secondary cp-eyedropper" id="btnCpEyedropper" title="Pipeta" style="padding:0.4rem 0.6rem;font-size:1rem;line-height:1">&#x1F489;</button>' : '') +
+            '<button class="btn secondary" id="customBtnColorClear" style="padding:0.4rem 0.75rem;font-size:0.8rem">' + escapeHtml(tr('action.reset')) + '</button>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="customize-card">' +
+          '<h3 class="customize-card-title">' + escapeHtml(tr('customization.sidebarText.title')) + '</h3>' +
+          '<p class="customize-card-desc">' + escapeHtml(tr('customization.sidebarText.desc')) + '</p>' +
+          '<label class="customize-label">' + escapeHtml(tr('customization.sidebarText.label')) + '</label>' +
+          '<div style="display:flex;gap:0.5rem;align-items:center">' +
+            '<input id="sidebarTextColorInput" type="color" value="' + escapeHtml(active.sidebarTextColor || '#ffffff') + '" style="width:48px;height:34px;padding:0;border:none;background:transparent">' +
+            '<input id="sidebarTextHexInput" class="input customize-input" type="text" placeholder="#FFFFFF" maxlength="7" value="' + escapeHtml(active.sidebarTextColor || '') + '" style="flex:1">' +
+            '<button class="btn secondary" id="sidebarTextColorClear" style="padding:0.4rem 0.75rem;font-size:0.8rem">' + escapeHtml(tr('action.reset')) + '</button>' +
+          '</div>' +
+        '</div>' +
+
+      '</div>' +
+      '<div class="customize-save-bar">' +
+
+        '<input id="customPresetName" class="input" style="flex:1;min-width:160px" placeholder="' + escapeHtml(tr('customization.presetNamePlaceholder')) + '" maxlength="40">' +
+
+        '<button class="btn primary" id="customSaveBtn">' + escapeHtml(tr('action.savePreset')) + '</button>' +
+
+        '<button class="btn secondary" id="customEditPresetsBtn">' + escapeHtml(tr('action.editPresets')) + '</button>' +
+
+        '<button class="btn secondary" id="customExportPresetsBtn">Export Presets</button>' +
+
+        '<button class="btn secondary" id="customImportPresetsBtn">Import Presets</button>' +
+
+        '<input id="customImportPresetsInput" type="file" accept="application/json" style="display:none">' +
+
+      '</div>' +
+
+      '<div class="customize-presets-section">' +
+
+        '<h3 class="section-title">' + escapeHtml(tr('customization.savedPresets')) + '</h3>' +
+
+        '<div id="customPresetsList">' + presetsHtml + '</div>' +
+
+      '</div>' +
+
+    '</div>';
+
+
+
+  function livePreview() {
+    var bgUrl      = document.getElementById('customBgUrl').value.trim();
+    var bgDim      = +document.getElementById('customBgDim').value;
+    var bgOpac     = +document.getElementById('customBgOpac').value;
+    var bgPosX     = _sanitizeCustomPercent(document.getElementById('customBgPosX').value, 50);
+    var bgPosY     = _sanitizeCustomPercent(document.getElementById('customBgPosY').value, 50);
+    var charUrl    = document.getElementById('customCharUrl').value.trim();
+    var charDark   = +document.getElementById('customCharDark').value;
+    var charDim    = +document.getElementById('customCharDim').value;
+    var charPosX   = _sanitizeCustomPercent(document.getElementById('customCharPosX').value, 50);
+    var charPosY   = _sanitizeCustomPercent(document.getElementById('customCharPosY').value, 50);
+    var headerUrl  = document.getElementById('customHeaderUrl').value.trim();
+    var headerDim  = +document.getElementById('customHeaderDim').value;
+    var headerOpac = +document.getElementById('customHeaderOpac').value;
+    var headerPosX = _sanitizeCustomPercent(document.getElementById('customHeaderPosX').value, 50);
+    var headerPosY = _sanitizeCustomPercent(document.getElementById('customHeaderPosY').value, 50);
+    var cornerUrl  = document.getElementById('customCornerUrl').value.trim();
+    var cornerDark = +document.getElementById('customCornerDark').value;
+    var cornerDim  = +document.getElementById('customCornerDim').value;
+    var cornerPosX = _sanitizeCustomPercent(document.getElementById('customCornerPosX').value, 50);
+    var cornerPosY = _sanitizeCustomPercent(document.getElementById('customCornerPosY').value, 50);
+    var paletteColor = (document.getElementById('cpHexInput') ? document.getElementById('cpHexInput').value.trim() : '') || '';
+    var fontFamily = _sanitizeCustomFontFamily(document.getElementById('customFontFamily').value);
+    var btnHexEl   = document.getElementById('btnCpHexInput');
+    var buttonColor = (btnHexEl ? btnHexEl.value.trim() : '') || '';
+    var sidebarTextHexEl = document.getElementById('sidebarTextHexInput');
+    var sidebarTextColor = (sidebarTextHexEl ? sidebarTextHexEl.value.trim() : '') || '';
+
+    document.getElementById('customBgDimVal').textContent      = bgDim;
+    document.getElementById('customBgOpacVal').textContent     = bgOpac;
+    document.getElementById('customBgPosXVal').textContent     = bgPosX;
+    document.getElementById('customBgPosYVal').textContent     = bgPosY;
+    document.getElementById('customCharDarkVal').textContent   = charDark;
+    document.getElementById('customCharDimVal').textContent    = charDim;
+    document.getElementById('customCharPosXVal').textContent   = charPosX;
+    document.getElementById('customCharPosYVal').textContent   = charPosY;
+    document.getElementById('customHeaderDimVal').textContent  = headerDim;
+    document.getElementById('customHeaderOpacVal').textContent = headerOpac;
+    document.getElementById('customHeaderPosXVal').textContent = headerPosX;
+    document.getElementById('customHeaderPosYVal').textContent = headerPosY;
+    document.getElementById('customCornerDarkVal').textContent = cornerDark;
+    document.getElementById('customCornerDimVal').textContent  = cornerDim;
+    document.getElementById('customCornerPosXVal').textContent = cornerPosX;
+    document.getElementById('customCornerPosYVal').textContent = cornerPosY;
+
+    var p = function(n) { return document.getElementById(n); };
+    p('previewBg').style.background     = bgUrl ? "linear-gradient(rgba(0,0,0," + (bgDim/100) + "),rgba(0,0,0," + (bgDim/100) + ")),url('" + bgUrl + "') " + bgPosX + "% " + bgPosY + "%/cover" : '';
+
+    // Left Column — apply darkness (brightness filter) and transparency (opacity)
+    var charPrev = p('previewChar');
+    charPrev.style.background = charUrl ? "url('" + charUrl + "') " + charPosX + "% " + charPosY + "%/contain no-repeat" : '';
+    charPrev.style.opacity    = charUrl ? String((100 - charDim)  / 100) : '';
+    charPrev.style.filter     = charUrl ? 'brightness(' + (1 - charDark / 100) + ')' : '';
+
+    p('previewHeader').style.background = headerUrl ? "linear-gradient(rgba(0,0,0," + (headerDim/100) + "),rgba(0,0,0," + (headerDim/100) + ")),url('" + headerUrl + "') " + headerPosX + "% " + headerPosY + "%/cover no-repeat" : '';
+
+    // Corner Card — apply darkness (brightness filter) and transparency (opacity)
+    var cornerPrev = p('previewCorner');
+    cornerPrev.style.background = cornerUrl ? "url('" + cornerUrl + "') " + cornerPosX + "% " + cornerPosY + "%/cover no-repeat" : '';
+    cornerPrev.style.opacity    = cornerUrl ? String((100 - cornerDim)  / 100) : '';
+    cornerPrev.style.filter     = cornerUrl ? 'brightness(' + (1 - cornerDark / 100) + ')' : '';
+
+    var currentCustom = getActiveCustom() || {};
+    var cfg = Object.assign({}, currentCustom, { bgUrl: bgUrl, bgDim: bgDim, bgOpac: bgOpac, bgPosX: bgPosX, bgPosY: bgPosY, charUrl: charUrl, charDark: charDark, charDim: charDim, charPosX: charPosX, charPosY: charPosY, headerUrl: headerUrl, headerDim: headerDim, headerOpac: headerOpac, headerPosX: headerPosX, headerPosY: headerPosY, cornerUrl: cornerUrl, cornerDark: cornerDark, cornerDim: cornerDim, cornerPosX: cornerPosX, cornerPosY: cornerPosY, paletteColor: paletteColor, fontFamily: fontFamily, buttonColor: buttonColor, sidebarTextColor: sidebarTextColor });
+
+    // Auto-apply every change from customization controls.
+    setActiveCustom(cfg);
+    applyCustomization(cfg);
+
+    return cfg;
+  }
+
+  // Register live-preview callback so initColorPicker can trigger it
+  _cpLivePreviewCb = livePreview;
+  _editingPresetId = null;
+
+
+
+  ['customBgUrl','customBgDim','customBgOpac','customBgPosX','customBgPosY','customCharUrl','customCharDark','customCharDim','customCharPosX','customCharPosY','customHeaderUrl','customHeaderDim','customHeaderOpac','customHeaderPosX','customHeaderPosY','customCornerUrl','customCornerDark','customCornerDim','customCornerPosX','customCornerPosY','customFontFamily','btnCpHexInput'].forEach(function(id) {
+
+    var el = document.getElementById(id);
+
+    if (el) {
+      var evtName = el.tagName === 'SELECT' ? 'change' : 'input';
+      el.addEventListener(evtName, livePreview);
+    }
+
+  });
+
+  // Button colour clear button
+  var btnClear = document.getElementById('customBtnColorClear');
+  if (btnClear) {
+    btnClear.addEventListener('click', function() {
+      var hexEl = document.getElementById('btnCpHexInput');
+      if (hexEl) { hexEl.value = ''; }
+      var swatch = document.getElementById('btnCpSwatch');
+      if (swatch) swatch.style.background = 'transparent';
+      livePreview();
+    });
+  }
+
+  var sidebarTextHexInput = document.getElementById('sidebarTextHexInput');
+  var sidebarTextColorInput = document.getElementById('sidebarTextColorInput');
+  if (sidebarTextHexInput && sidebarTextColorInput) {
+    sidebarTextHexInput.addEventListener('input', function() {
+      var v = sidebarTextHexInput.value.trim();
+      if (/^#[0-9a-f]{6}$/i.test(v)) sidebarTextColorInput.value = v;
+      livePreview();
+    });
+    sidebarTextColorInput.addEventListener('input', function() {
+      sidebarTextHexInput.value = sidebarTextColorInput.value;
+      livePreview();
+    });
+  }
+
+  var sidebarTextColorClear = document.getElementById('sidebarTextColorClear');
+  if (sidebarTextColorClear) {
+    sidebarTextColorClear.addEventListener('click', function() {
+      if (sidebarTextHexInput) sidebarTextHexInput.value = '';
+      if (sidebarTextColorInput) sidebarTextColorInput.value = '#ffffff';
+      livePreview();
+    });
+  }
+
+  initColorPicker();
+  initBtnColorPicker();
+
+  // Eyedropper buttons (only present if browser supports EyeDropper API)
+  function _attachEyedropper(btnId, hexInputId) {
+    var btn = document.getElementById(btnId);
+    if (!btn || !('EyeDropper' in window)) return;
+    btn.addEventListener('click', function() {
+      new window.EyeDropper().open().then(function(result) {
+        var hexEl = document.getElementById(hexInputId);
+        if (hexEl) {
+          hexEl.value = result.sRGBHex;
+          hexEl.dispatchEvent(new Event('input'));
+        }
+      }).catch(function() {}); // user cancelled
+    });
+  }
+  _attachEyedropper('cpEyedropper',    'cpHexInput');
+  _attachEyedropper('btnCpEyedropper', 'btnCpHexInput');
+
+
+
+  document.getElementById('customSaveBtn').onclick = function() {
+
+    var cfg = livePreview();
+
+    var name = document.getElementById('customPresetName').value.trim() || t('customization.defaultPresetName');
+
+    var list = getCustomPresets();
+
+    if (_editingPresetId) {
+      // Update existing preset in-place
+      list = list.map(function(item) {
+        return item.id === _editingPresetId ? Object.assign({}, item, cfg, { name: name }) : item;
+      });
+      _editingPresetId = null;
+    } else {
+      list.push(Object.assign({ id: 'custom-' + Date.now(), name: name }, cfg));
+    }
+
+    saveCustomPresets(list);
+
+    showToast(t('customization.toastPresetSaved'), name, 'success');
+
+    renderCustomizeView();
+
+  };
+
+  document.getElementById('customEditPresetsBtn').onclick = function() {
+    var section = document.querySelector('.customize-presets-section');
+    if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  var exportBtn = document.getElementById('customExportPresetsBtn');
+  if (exportBtn) {
+    exportBtn.onclick = function() {
+      var presets = getCustomPresets();
+      var payload = {
+        app: 'ScrollScape',
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        presets: presets,
+      };
+      var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'scrollscape-theme-presets.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('Presets exported', presets.length + ' preset(s)', 'success');
+    };
+  }
+
+  var importBtn = document.getElementById('customImportPresetsBtn');
+  var importInput = document.getElementById('customImportPresetsInput');
+  if (importBtn && importInput) {
+    importBtn.onclick = function() { importInput.click(); };
+    importInput.onchange = function() {
+      var file = importInput.files && importInput.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function() {
+        try {
+          var parsed = JSON.parse(String(reader.result || '{}'));
+          var incoming = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.presets) ? parsed.presets : []);
+          if (!incoming.length) throw new Error('No presets found');
+
+          var result = _mergeImportedCustomPresets(getCustomPresets(), incoming);
+          if (result.skipped >= incoming.length) throw new Error('No valid presets found');
+          saveCustomPresets(result.presets);
+          renderCustomizeView();
+          if (typeof renderThemesView === 'function') {
+            var themesView = document.getElementById('view-themes');
+            if (themesView && !themesView.classList.contains('hidden')) renderThemesView();
+          }
+          showToast('Presets imported', (incoming.length - result.skipped) + ' preset(s)' + (result.skipped ? ', ' + result.skipped + ' skipped' : ''), 'success');
+        } catch (e) {
+          showToast('Import failed', e && e.message ? e.message : 'Invalid preset file', 'warning');
+        } finally {
+          importInput.value = '';
+        }
+      };
+      reader.readAsText(file, 'utf-8');
+    };
+  }
+
+  document.getElementById('customResetBtn').onclick = function() {
+
+    setActiveCustom(null);
+
+    applyCustomization(null);
+
+    showToast(t('customization.toastReset'), '', 'info');
+
+    renderCustomizeView();
+
+  };
+
+}
+
+
+
+// ── Canvas colour picker ─────────────────────────────────────────────────────
+// Generic canvas picker. Pass {sbId, hueId, hexId, defaultHex, onCommit}.
+function _initCanvasPicker(opts) {
+  var sbCv  = document.getElementById(opts.sbId);
+  var hueCv = document.getElementById(opts.hueId);
+  var hexIn = document.getElementById(opts.hexId);
+  if (!sbCv || !hueCv || !hexIn) return;
+
+  var W = sbCv.parentElement.clientWidth - 2;
+  if (W > 40) { sbCv.width = W; hueCv.width = W; }
+
+  var sbCtx  = sbCv.getContext('2d');
+  var hueCtx = hueCv.getContext('2d');
+  var def    = opts.defaultHex || DEFAULT_CUSTOM_THEME_HEX;
+  var saved  = hexIn.value.trim();
+  var initHsv = _hexToHsv(/^#[0-9a-f]{6}$/i.test(saved) ? saved : def);
+  var S = { h: initHsv.h, s: initHsv.s, v: initHsv.v };
+
+  function drawHue() {
+    var g = hueCtx.createLinearGradient(0,0,hueCv.width,0);
+    for (var i=0;i<=1;i+=1/36) g.addColorStop(i,'hsl('+(i*360)+',100%,50%)');
+    hueCtx.fillStyle = g;
+    hueCtx.fillRect(0,0,hueCv.width,hueCv.height);
+    var tx = Math.max(7, Math.min(hueCv.width-7, (S.h/360)*hueCv.width));
+    hueCtx.beginPath();
+    hueCtx.arc(tx, hueCv.height/2, Math.max(5, hueCv.height/2-1), 0, Math.PI*2);
+    hueCtx.strokeStyle='#fff'; hueCtx.lineWidth=2; hueCtx.stroke();
+  }
+
+  function drawSB() {
+    var gH = sbCtx.createLinearGradient(0,0,sbCv.width,0);
+    gH.addColorStop(0,'#fff');
+    gH.addColorStop(1,'hsl('+S.h+',100%,50%)');
+    sbCtx.fillStyle = gH; sbCtx.fillRect(0,0,sbCv.width,sbCv.height);
+    var gV = sbCtx.createLinearGradient(0,0,0,sbCv.height);
+    gV.addColorStop(0,'rgba(0,0,0,0)');
+    gV.addColorStop(1,'rgba(0,0,0,1)');
+    sbCtx.fillStyle = gV; sbCtx.fillRect(0,0,sbCv.width,sbCv.height);
+    var cx = S.s * sbCv.width;
+    var cy = (1-S.v) * sbCv.height;
+    sbCtx.beginPath();
+    sbCtx.arc(cx, cy, 7, 0, Math.PI*2);
+    sbCtx.strokeStyle='#fff'; sbCtx.lineWidth=2; sbCtx.stroke();
+  }
+
+  function commit() {
+    var hex = _hsvToHex(S.h, S.s, S.v);
+    hexIn.value = hex;
+    if (opts.onCommit) opts.onCommit(hex);
+  }
+
+  function clamp(x,lo,hi){return Math.max(lo,Math.min(hi,x));}
+
+  var hDrag=false;
+  function onHue(e){
+    e.preventDefault();
+    var rect=hueCv.getBoundingClientRect();
+    var cx=e.touches?e.touches[0].clientX:e.clientX;
+    S.h = clamp((cx-rect.left)/rect.width,0,1)*360;
+    drawHue(); drawSB(); commit();
+  }
+  hueCv.addEventListener('mousedown',function(e){hDrag=true;onHue(e);});
+  document.addEventListener('mousemove',function(e){if(hDrag)onHue(e);});
+  document.addEventListener('mouseup',function(){hDrag=false;});
+  hueCv.addEventListener('touchstart',onHue,{passive:false});
+  hueCv.addEventListener('touchmove',onHue,{passive:false});
+
+  var sbDrag=false;
+  function onSB(e){
+    e.preventDefault();
+    var rect=sbCv.getBoundingClientRect();
+    var cx=e.touches?e.touches[0].clientX:e.clientX;
+    var cy=e.touches?e.touches[0].clientY:e.clientY;
+    S.s = clamp((cx-rect.left)/rect.width,0,1);
+    S.v = clamp(1-(cy-rect.top)/rect.height,0,1);
+    drawSB(); commit();
+  }
+  sbCv.addEventListener('mousedown',function(e){sbDrag=true;onSB(e);});
+  document.addEventListener('mousemove',function(e){if(sbDrag)onSB(e);});
+  document.addEventListener('mouseup',function(){sbDrag=false;});
+  sbCv.addEventListener('touchstart',onSB,{passive:false});
+  sbCv.addEventListener('touchmove',onSB,{passive:false});
+
+  hexIn.addEventListener('input',function(){
+    var v=hexIn.value.trim();
+    if(/^#[0-9a-f]{6}$/i.test(v)){
+      var c=_hexToHsv(v); S.h=c.h; S.s=c.s; S.v=c.v;
+      drawHue(); drawSB(); commit();
+    }
+  });
+
+  drawHue(); drawSB(); commit();
+}
+
+function initColorPicker() {
+  _initCanvasPicker({
+    sbId:  'cpSB',
+    hueId: 'cpHue',
+    hexId: 'cpHexInput',
+    defaultHex: DEFAULT_CUSTOM_THEME_HEX,
+    onCommit: function(hex) {
+      var pal = _derivePalette(hex);
+      var ps=document.getElementById('cpSwPrimary'), pd=document.getElementById('cpSwDark'), pl=document.getElementById('cpSwLight');
+      if(ps) ps.style.background=pal.primary;
+      if(pd) pd.style.background=pal.dark;
+      if(pl) pl.style.background=pal.light;
+      document.documentElement.style.setProperty('--primary',       pal.primary);
+      document.documentElement.style.setProperty('--primary-dark',  pal.dark);
+      document.documentElement.style.setProperty('--primary-light', pal.light);
+      var _cur = getActiveCustom() || {};
+      _cur.paletteColor = hex;
+      setActiveCustom(_cur);
+      if (typeof _cpLivePreviewCb === 'function') _cpLivePreviewCb();
+    }
+  });
+}
+
+function initBtnColorPicker() {
+  _initCanvasPicker({
+    sbId:  'btnCpSB',
+    hueId: 'btnCpHue',
+    hexId: 'btnCpHexInput',
+    defaultHex: DEFAULT_CUSTOM_THEME_HEX,
+    onCommit: function(hex) {
+      var swatch = document.getElementById('btnCpSwatch');
+      if (swatch) swatch.style.background = hex;
+      var _cur = getActiveCustom() || {};
+      _cur.buttonColor = hex;
+      setActiveCustom(_cur);
+      if (typeof _cpLivePreviewCb === 'function') _cpLivePreviewCb();
+    }
+  });
+}
+
+function applyCustomPreset(id) {
+
+  var p = getCustomPresets().find(function(x) { return x.id === id; });
+
+  if (!p) return;
+
+  setActiveCustom(p);
+
+  applyCustomization(p);
+
+  showToast(t('customization.toastPresetApplied'), p.name, 'success');
+
+}
+
+window.applyCustomPreset = applyCustomPreset;
+
+
+
+function deleteCustomPreset(id) {
+
+  saveCustomPresets(getCustomPresets().filter(function(x) { return x.id !== id; }));
+
+  renderCustomizeView();
+
+}
+
+function editCustomPreset(id) {
+
+  var preset = getCustomPresets().find(function(x) { return x.id === id; });
+
+  if (!preset) return;
+
+  setActiveCustom(preset);
+  renderCustomizeView();
+  _editingPresetId = id;
+
+  var nameInput = document.getElementById('customPresetName');
+  if (nameInput) nameInput.value = preset.name || '';
+
+  var saveBtn = document.getElementById('customSaveBtn');
+  if (saveBtn) saveBtn.textContent = t('customization.updatePreset');
+
+  var editPresetsBtn = document.getElementById('customEditPresetsBtn');
+  if (editPresetsBtn) editPresetsBtn.style.display = 'none';
+
+  document.getElementById('view-customize').scrollIntoView({ behavior: 'smooth' });
+
+  showToast(t('customization.toastLoadedEditing'), preset.name, 'info');
+
+}
+
+window.editCustomPreset = editCustomPreset;
+
+window.deleteCustomPreset = deleteCustomPreset;
+
+// Load presets from disk folder on startup and keep localStorage mirrored.
+syncCustomPresetsFromDisk();
+
+

@@ -1,0 +1,33 @@
+name: Dependency audit
+
+# `npm audit` is not part of the CI run on purpose: a new advisory against a package nobody touched would make an unrelated
+# change fail. It runs here instead, once a week and whenever the dependencies change, and a failing run is the notice that
+# something has to be updated (found by hand once already: a high-severity advisory in node-forge, a dependency of the build
+# tool that sets the exe icon).
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [package.json, package-lock.json]
+  pull_request:
+    branches: [main]
+    paths: [package.json, package-lock.json]
+
+jobs:
+  audit:
+    name: npm audit (high and above)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+
+      - name: Audit
+        run: npm audit --audit-level=high

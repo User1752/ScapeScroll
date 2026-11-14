@@ -1,0 +1,72 @@
+/* ============================================================================
+   SETTINGS > INTEGRATIONS > "PROTECTED SITES" CARD   (ui-settings-solver.js)
+   The card reuses the shared Settings building blocks (.settings-section-card,
+   .setting-group, .toggle-label, .input, .setting-description from
+   settings-modal.css); this file only adds what they do not cover. Colours come
+   from variables that every theme defines, so both light and dark follow.
+============================================================================ */
+
+/* The shared switch hides its checkbox with display:none, which takes it out of
+   the tab order. Here the checkbox stays in place, invisible but focusable, and
+   the switch itself shows the focus ring. */
+.solver-settings-card .toggle-label {
+  position: relative;
+}
+
+.solver-settings-card .toggle-label input[type="checkbox"] {
+  display: block;
+  position: absolute;
+  inset-inline-start: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.solver-settings-card .toggle-label input[type="checkbox"]:focus-visible + .toggle-slider {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.solver-settings-card .toggle-label input[type="checkbox"]:disabled + .toggle-slider {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+.solver-settings-card .toggle-label input.is-invalid + .toggle-slider {
+  border-color: var(--danger);
+}
+
+/* A whole number between 1 and 15 needs little room. */
+.solver-settings-card input[type="number"].input {
+  width: 6.5rem;
+}
+
+.solver-settings-card .input.is-invalid,
+.solver-settings-card .input.is-invalid:focus,
+.solver-settings-card .input.is-invalid:focus-visible {
+  border-color: var(--danger);
+}
+
+.solver-settings-card .input.is-invalid:focus,
+.solver-settings-card .input.is-invalid:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 32%, transparent);
+}
+
+/* Mixed with the text colour so the red keeps its contrast on the light theme
+   (darker) and on the dark ones (lighter) alike. */
+.solver-settings-error {
+  color: color-mix(in srgb, var(--danger) 80%, var(--text-primary));
+  font-weight: 600;
+  opacity: 1;
+}
+
+.solver-settings-error:empty {
+  display: none;
+}
+
+/* SCROLLSCAPE_SOLVER_SESSIONS_DISABLED is one long unbroken word. */
+.solver-settings-env {
+  overflow-wrap: anywhere;
+}

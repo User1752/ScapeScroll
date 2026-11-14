@@ -1,0 +1,367 @@
+/* ============================================================================
+   CUSTOM LISTS
+   ============================================================================ */
+
+/* ── Assign Categories modal ─────────────────────────────────────────────── */
+.cat-modal-panel {
+  max-width: 420px;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card, #1a1a2e);
+  box-shadow: 0 24px 60px rgba(0,0,0,.6);
+}
+
+.cat-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1.25rem 1.25rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+.cat-modal-header__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.cat-modal-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary, #fff);
+  line-height: 1.2;
+}
+
+.cat-modal-subtitle {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #aaa);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cat-modal-close {
+  flex-shrink: 0;
+  background: rgba(255,255,255,.07);
+  border: none;
+  border-radius: 8px;
+  color: var(--text-secondary, #aaa);
+  width: 32px;
+  height: 32px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cat-modal-close:hover {
+  background: rgba(255,255,255,.14);
+  color: #fff;
+}
+
+.cat-modal-body {
+  padding: 0.75rem 1.25rem;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 340px;
+}
+
+.cat-modal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.cat-modal-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .15s;
+  border: 1px solid transparent;
+}
+.cat-modal-row:hover {
+  background: rgba(255,255,255,.05);
+}
+.cat-modal-row--checked {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+.cat-modal-row input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.cat-modal-row__name {
+  flex: 1;
+  font-size: 0.92rem;
+  color: var(--text-primary, #fff);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cat-modal-row__count {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #aaa);
+  background: rgba(255,255,255,.07);
+  border-radius: 20px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+
+.cat-modal-footer {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.85rem 1.25rem 1.1rem;
+  border-top: 1px solid rgba(255,255,255,.07);
+  flex-wrap: wrap;
+}
+
+.cat-modal-footer .btn {
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+}
+
+/* ── New/Edit Category form modal (ui-custom-lists-view.js's
+   showListFormModal) — bigger and more considered than the plain
+   generic .settings-content default it used to inherit (which had no
+   dedicated .settings-body padding at all, and its Create/Cancel row
+   force-stacked full-height since inline "display:flex" never overrode
+   .setting-group's own flex-direction:column). Scoped to .list-form-modal
+   only, not the shared .settings-* classes other modals (Edit Tags, etc.)
+   still use as-is. ─────────────────────────────────────────────────── */
+.list-form-content {
+  max-width: 560px;
+}
+
+.list-form-modal .settings-header h2 {
+  font-size: 1.35rem;
+}
+
+.list-form-modal .settings-body {
+  padding: 1.5rem 1.75rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.list-form-modal .setting-group {
+  gap: 0.55rem;
+}
+
+.list-form-modal input.input,
+.list-form-modal select.input {
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  border-radius: 10px;
+}
+
+.list-form-toggle-card {
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 22%, transparent);
+  border-radius: 12px;
+  padding: 0.95rem 1.1rem !important;
+  gap: 1.1rem !important;
+}
+
+.list-form-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding-top: 0.3rem;
+}
+
+.list-form-actions .btn {
+  flex: 1;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  border-radius: 10px;
+}
+
+/* ── Category chips on library cards ─────────────────────────────────────── */
+.category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.category-chip {
+  display: inline-block;
+  background: color-mix(in srgb, var(--primary) 18%, transparent);
+  color: var(--primary);
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.6;
+}
+
+/* ── Categories button on library card info ──────────────────────────────── */
+.btn-categories {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-categories:hover {
+  background: color-mix(in srgb, var(--primary) 25%, transparent);
+  color: var(--primary);
+}
+
+.lists-container {
+  padding: 2rem 0;
+}
+
+.lists-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.lists-header h2 {
+  font-size: 2rem;
+}
+
+.lists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.list-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.list-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--primary) 15%, transparent);
+}
+
+.list-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  color: var(--text-primary);
+}
+
+.list-card-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.list-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.list-card-count {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.list-card-actions {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.4rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.list-card:hover .list-card-actions {
+  opacity: 1;
+}
+
+.btn-icon {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.btn-icon-edit {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.btn-icon-delete {
+  background-color: rgba(239,68,68,0.15);
+  color: var(--danger);
+}
+
+.btn-icon:hover {
+  transform: scale(1.1);
+}
+
+/* List detail view */
+.list-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.list-detail-info h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.list-detail-info p {
+  color: var(--text-secondary);
+}
+

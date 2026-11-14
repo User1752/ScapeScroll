@@ -1,0 +1,71 @@
+/* ── Cover loading ring (ui-library-cover-progress.js) ─────────────────────────
+   A small panel under the floating column of the library (#librarySideActions): a ring that fills as the covers arrive, and "done/total".
+   Same glass look as that column. Positioned by the script (fixed, same right edge and width); hidden when there is nothing to show. */
+.library-cover-progress {
+  position: fixed;
+  right: 12px;
+  z-index: 119;                     /* just under the column (120): it is part of it, visually */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px 9px;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--bg-card, var(--color-surface, #1a1a2e)) 70%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in srgb, var(--primary, #8b5cf6) 25%, transparent);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary, var(--color-text-muted, #bdbdbd));
+  pointer-events: none;             /* never in the way of the covers or the column */
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.library-cover-progress[hidden] { display: none; }
+.library-cover-progress.is-leaving { opacity: 0; transform: translateY(6px); }
+
+.lcp-ring { width: 56px; height: 56px; }
+.lcp-ring circle { fill: none; stroke-width: 3.2; }
+/* the track turns slowly while it loads: the ring is alive even between two covers */
+.lcp-track {
+  stroke: color-mix(in srgb, var(--primary, #8b5cf6) 30%, transparent);
+  stroke-dasharray: 1.5 5.2;
+  stroke-linecap: round;
+  transform-origin: 22px 22px;
+  animation: lcp-turn 8s linear infinite;
+}
+.lcp-arc {
+  stroke: var(--primary, #8b5cf6);
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 22px 22px;
+  transition: stroke-dashoffset 0.25s ease;
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--primary, #8b5cf6) 60%, transparent));
+}
+.library-cover-progress.is-done .lcp-track { animation: none; }
+
+/* the numbers sit over the middle of the ring */
+.lcp-count {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.lcp-done { font-size: 0.95rem; font-weight: 700; color: var(--text-primary, #fff); }
+.lcp-total { font-size: 0.62rem; opacity: 0.8; }
+.lcp-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+
+@keyframes lcp-turn { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .lcp-track { animation: none; }
+  .library-cover-progress, .lcp-arc { transition: none; }
+}

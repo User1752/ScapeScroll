@@ -1,0 +1,544 @@
+﻿/* ============================================================================
+   SETTINGS MODAL — Tabbed redesign
+   ============================================================================ */
+.settings-modal {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(1200px 600px at 12% 8%, color-mix(in srgb, var(--primary) 18%, transparent), transparent 60%),
+    radial-gradient(1000px 500px at 86% 90%, color-mix(in srgb, var(--primary) 12%, transparent), transparent 60%),
+    rgba(0, 0, 0, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+/* The version of the app, in the corner next to the title (ui-settings-version.js). */
+.settings-app-version {
+  font-size: 0.8em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.settings-content {
+  background: color-mix(in srgb, var(--bg-secondary) 94%, var(--bg-surface-elevated-alt));
+  border-radius: 18px;
+  /* Was capped at 940px regardless of screen size — on anything wider than
+     a laptop that left most of the backdrop empty while a tab with many
+     cards (Advanced, pre-split, had 11) still forced a long single-column
+     scroll. 1320px lets the masonry layout below actually show 2-3 cards
+     side by side on a real desktop instead of stacking everything. */
+  width: min(1320px, 95vw);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 28px 72px rgba(0,0,0,0.62), 0 0 0 1px color-mix(in srgb, var(--primary) 28%, transparent);
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.05rem 1.35rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--primary) 12%, transparent), rgba(0,0,0,0));
+  flex-shrink: 0;
+}
+
+.settings-header h2 {
+  font-size: 1.2rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.settings-header .btn {
+  min-width: 40px;
+  height: 34px;
+  padding: 0;
+  border-radius: 10px;
+}
+
+/* ── Two-column layout: sidebar + panel ─────────────────────────────────── */
+.settings-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Left nav sidebar ────────────────────────────────────────────────────── */
+.settings-nav {
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0.9rem 0.7rem;
+  border-right: 1px solid color-mix(in srgb, var(--primary) 18%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--primary) 8%, transparent), rgba(0,0,0,0.14));
+  overflow-y: auto;
+}
+
+.settings-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.62rem 0.8rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 560;
+  color: var(--text-secondary);
+  transition: background 0.16s, color 0.16s, transform 0.16s;
+  user-select: none;
+  border: 1px solid transparent;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.settings-nav-item:hover {
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 28%, transparent);
+  color: var(--text-primary);
+  transform: translateX(1px);
+}
+
+.settings-nav-item.active {
+  background: color-mix(in srgb, var(--primary) 20%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 38%, transparent);
+  color: var(--text-primary);
+  font-weight: 640;
+}
+
+/* ── Right content panel ─────────────────────────────────────────────────── */
+.settings-panel-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.2rem 1.25rem 1.4rem;
+}
+
+/* ── Tabs ────────────────────────────────────────────────────────────────── */
+/* Masonry-style multi-column flow instead of one long single-column stack —
+   card heights here are wildly uneven (a "Data" card with one button next
+   to an "AniList" card with a dozen fields), which is exactly the case a
+   CSS grid handles badly (row height snaps to the tallest card in that row,
+   leaving ragged gaps under the shorter ones). `columns` packs each card
+   into whichever column has room next, like a waterfall — no gaps, and it
+   degrades to a single column on its own once the modal is too narrow for
+   a second one, no extra media query needed for that part. */
+.settings-tab {
+  display: none;
+}
+
+.settings-tab.active {
+  display: block;
+  /* A target width rather than a fixed count — the browser fits as many
+     ~420px columns as actually fit, so this naturally collapses to a
+     single column on a narrow window instead of squeezing two together. */
+  columns: 420px 2;
+  column-gap: 1rem;
+}
+
+/* A tab with one big card (the Suwayomi tab, whose card holds the catalog grid) takes the whole width instead of the first of two columns. */
+.settings-tab.active.settings-tab-wide {
+  columns: auto;
+}
+
+/* ── Section card groups ─────────────────────────────────────────────────── */
+.settings-section-card {
+  background: linear-gradient(180deg, rgba(21, 30, 46, 0.75), rgba(9, 14, 26, 0.72));
+  border: 1px solid color-mix(in srgb, var(--primary) 22%, transparent);
+  border-radius: 12px;
+  padding: 1rem 1.05rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  margin-bottom: 0.9rem;
+  break-inside: avoid; /* keep a card from splitting across the two columns */
+}
+
+.settings-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: color-mix(in srgb, var(--primary) 65%, white 35%);
+  margin: 0 0 0.15rem;
+  opacity: 0.95;
+}
+
+/* ── Setting group ───────────────────────────────────────────────────────── */
+.setting-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* A group has display:flex, which would beat the hidden attribute. */
+.setting-group[hidden] {
+  display: none;
+}
+
+.setting-group + .setting-group {
+  padding-top: 0.85rem;
+  border-top: 1px solid color-mix(in srgb, var(--primary) 14%, transparent);
+}
+
+.setting-group label {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+/* ── Input ───────────────────────────────────────────────────────────────── */
+.input {
+  padding: 0.6rem 0.78rem;
+  background: color-mix(in srgb, var(--bg-tertiary) 90%, var(--bg-surface-elevated));
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, transparent);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.input:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.input:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+/* ── Toggle switch ───────────────────────────────────────────────────────── */
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.toggle-text {
+  flex: 1;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.toggle-slider {
+  position: relative;
+  width: 46px;
+  height: 26px;
+  background: color-mix(in srgb, var(--bg-tertiary) 80%, var(--bg-surface-elevated));
+  border-radius: 13px;
+  flex-shrink: 0;
+  transition: background 0.25s ease;
+  border: 1px solid color-mix(in srgb, var(--primary) 32%, transparent);
+}
+
+.toggle-label input[type="checkbox"]:checked + .toggle-slider {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.toggle-slider::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: left 0.25s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.toggle-label input[type="checkbox"]:checked + .toggle-slider::after {
+  left: 22px;
+}
+
+.toggle-label input[type="checkbox"] {
+  display: none;
+}
+
+/* ── Description text ────────────────────────────────────────────────────── */
+.setting-description {
+  font-size: 0.79rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0;
+  opacity: 0.85;
+}
+
+.setting-description code {
+  font-family: monospace;
+  font-size: 0.79rem;
+  background: var(--bg-tertiary);
+  color: color-mix(in srgb, var(--primary) 72%, white 28%);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* ── Home source selection checkboxes ────────────────────────────────────── */
+#homeSourceSelectionList {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.home-source-check {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.46rem 0.55rem;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--primary) 14%, transparent);
+  background: color-mix(in srgb, var(--bg-tertiary) 82%, transparent);
+  transition: background 0.14s ease, border-color 0.14s ease;
+}
+
+.home-source-check:hover {
+  background: color-mix(in srgb, var(--primary) 10%, var(--bg-tertiary));
+  border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.home-source-option {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.home-source-check-label {
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  line-height: 1.2;
+}
+
+.home-source-check-risky {
+  border-color: color-mix(in srgb, var(--warning) 35%, transparent);
+  background: color-mix(in srgb, var(--warning) 7%, var(--bg-tertiary));
+}
+
+.home-source-check-warning {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--warning);
+  font-size: 0.76rem;
+  line-height: 1.3;
+}
+
+/* Auto-scroll point speed controls */
+.auto-scroll-point-grid {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.auto-scroll-point-row {
+  display: grid;
+  grid-template-columns: 88px 1fr 78px;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.42rem 0.52rem;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--bg-tertiary) 86%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 16%, transparent);
+}
+
+.settings-speed-slider {
+  width: 100%;
+  height: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--primary) 75%, white 25%) 0%,
+    color-mix(in srgb, var(--primary) 42%, transparent) 38%,
+    color-mix(in srgb, var(--bg-tertiary) 82%, #0d1422) 100%);
+  outline: none;
+  cursor: pointer;
+}
+
+.settings-speed-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, white 75%, var(--primary));
+  background: linear-gradient(145deg, var(--primary-light), var(--primary));
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 36%, transparent);
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.settings-speed-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.12);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--primary) 50%, transparent);
+}
+
+.settings-speed-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, white 75%, var(--primary));
+  background: linear-gradient(145deg, var(--primary-light), var(--primary));
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 36%, transparent);
+}
+
+.settings-speed-slider::-moz-range-track {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--primary) 75%, white 25%) 0%,
+    color-mix(in srgb, var(--primary) 42%, transparent) 38%,
+    color-mix(in srgb, var(--bg-tertiary) 82%, #0d1422) 100%);
+}
+
+.auto-scroll-point-speed-label {
+  text-align: right;
+  font-size: 0.84rem;
+  opacity: 0.92;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--primary) 72%, white 28%);
+}
+
+/* ── Divider (legacy, used by anilist section) ───────────────────────────── */
+.settings-divider {
+  height: 1px;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  margin: 0.25rem 0;
+}
+
+/* ── Subsection label (legacy) ───────────────────────────────────────────── */
+.settings-subsection {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--primary-light);
+  opacity: 0.85;
+}
+
+/* ── AniList tracking ─────────────────────────────────────────────────────── */
+.anilist-user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-tertiary);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.anilist-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.anilist-username {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.anilist-import-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-top: -0.2rem;
+}
+.anilist-import-progress.hidden { display: none; }
+
+.anilist-import-progress-bar {
+  width: 100%;
+  height: 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-tertiary) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  overflow: hidden;
+}
+
+.anilist-import-progress-fill {
+  width: 0%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--primary) 30%, transparent);
+  transition: width 0.22s ease;
+}
+
+.anilist-import-badge {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 4000;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid color-mix(in srgb, var(--primary) 40%, transparent);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.anilist-import-badge.hidden {
+  display: none;
+}
+
+.anilist-import-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--primary) 25%, transparent);
+  border-top-color: var(--primary);
+  animation: anilist-import-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes anilist-import-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 560px) {
+  .settings-content {
+    width: 98vw;
+    max-height: 92vh;
+  }
+
+  .settings-nav {
+    width: 56px;
+    padding: 0.75rem 0.4rem;
+  }
+  .settings-nav-item {
+    justify-content: flex-start;
+    padding: 0.55rem 0.45rem;
+    font-size: 0.8rem;
+  }
+  .settings-panel-wrap {
+    padding: 1rem;
+  }
+  .settings-tab.active {
+    columns: 1;
+  }
+}

@@ -1,0 +1,69 @@
+/* ============================================================================
+   RECOMMENDED SECTION
+   ============================================================================ */
+.recommended-section {
+  margin-bottom: 2rem;
+}
+
+.similar-manga-section {
+  margin: 2rem 0;
+}
+
+.similar-manga-section.hidden {
+  display: none;
+}
+
+
+/* "You might also like" from AniList (ui-similar-anilist.js): a note beside the title, the score on the cover, and a find button that is only a label (the whole card is the click) */
+.similar-al-note {
+  margin-left: 0.6rem;
+  font-size: 0.8rem;
+}
+
+.similar-al-card {
+  cursor: pointer;
+}
+
+.similar-al-score {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #ffd25e;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.similar-al-find {
+  display: block;
+  text-align: center;
+}
+
+/* The home page with no source installed (ui-empty-sources.js): what to do, at the top of the page */
+.no-sources-notice {
+  margin: 0 0 2rem;
+  padding: 1.4rem 1.6rem;
+  border: 1px solid color-mix(in srgb, var(--primary, #8b5cf6) 30%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--bg-card, #1a1a2e) 80%, transparent);
+}
+
+.no-sources-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+}
+
+.no-sources-text {
+  margin: 0 0 1rem;
+  max-width: 62ch;
+  color: var(--text-secondary, #bdbdbd);
+  line-height: 1.5;
+}
+
+.no-sources-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}

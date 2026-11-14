@@ -1,0 +1,697 @@
+/* ============================================================================
+   SETTINGS > ADVANCED > "IMPORT A SOURCE" CARD   (ui-settings-source-import.js)
+   The card reuses the shared Settings building blocks (.settings-section-card,
+   .setting-group, .input, .setting-description, .btn from settings-modal.css and
+   styles.css); this file only adds what they do not cover. Colours come from
+   variables every theme defines, so light and dark both follow.
+============================================================================ */
+
+.source-import-card {
+  overflow-wrap: anywhere;
+}
+
+/* A warning that has to be seen before the form: the border carries the meaning, the fill stays faint. */
+.source-import-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0.4rem 0 0.9rem;
+  padding: 0.6rem 0.8rem;
+  border-inline-start: 4px solid var(--warning);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+  color: var(--text-primary);
+  font-size: 0.9em;
+  line-height: 1.45;
+}
+
+.source-import-file-row {
+  margin-bottom: 0.6rem;
+}
+
+.source-import-code {
+  display: block;
+  width: 100%;
+  min-height: 9rem;
+  margin: 0.4rem 0;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85em;
+  line-height: 1.4;
+  white-space: pre;
+  overflow: auto;
+  tab-size: 2;
+}
+
+/* "Add from a link": the address box and its button share a row; the answer lists what the site check found. */
+.source-link-block {
+  margin-bottom: 1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.source-link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.4rem 0;
+}
+
+.source-link-url {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.source-link-generated-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* The manga | anime switch: two buttons side by side; what the other kind owns is hidden with the hidden attribute. */
+.source-kind-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.3rem 0;
+}
+
+/* The pressed button is the kind in use: the theme's primary and secondary buttons look alike, so the state is drawn here. */
+.source-kind-switch .btn[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px var(--text-primary);
+}
+
+.source-kind-switch .btn[aria-pressed="false"] {
+  opacity: 0.55;
+}
+
+.source-link-ok,
+.source-link-refused {
+  margin: 0.3rem 0;
+  font-weight: 600;
+}
+
+.source-link-ok { color: var(--success); }
+.source-link-refused { color: var(--danger); }
+
+.source-link-reasons,
+.source-link-notes {
+  margin: 0.3rem 0 0.3rem 1.1rem;
+  padding: 0;
+  font-size: 0.9em;
+  line-height: 1.45;
+}
+
+.source-link-sev-block { color: var(--danger); }
+.source-link-sev-warn { color: var(--warning); }
+
+.source-import-id {
+  max-width: 22rem;
+}
+
+.source-import-card .btn:focus-visible,
+.source-import-code:focus-visible,
+.source-import-id:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.source-import-card .btn:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+/* While a request is running nothing in the card can be started again. */
+.source-import-card[aria-busy="true"] [data-si-action] {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Mixed with the text colour so the red keeps its contrast on the light theme (darker) and on the dark ones
+   (lighter) alike, as the Protected sites card does. */
+.source-import-error {
+  color: color-mix(in srgb, var(--danger) 80%, var(--text-primary));
+  font-weight: 600;
+  opacity: 1;
+}
+
+.source-import-error:empty {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.source-import-error-line {
+  display: block;
+  margin-top: 0.2rem;
+  font-weight: 400;
+}
+
+.source-import-report {
+  margin: 0.4rem 0 1rem;
+}
+
+.source-import-report:empty {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.source-import-subtitle {
+  margin: 0.8rem 0 0.3rem;
+  color: var(--text-strong);
+  font-size: 0.8em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.source-import-facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.2rem 0.9rem;
+  margin: 0.4rem 0;
+}
+
+.source-import-facts dt {
+  color: var(--text-secondary);
+}
+
+.source-import-facts dd {
+  margin: 0;
+}
+
+.source-import-blockers {
+  padding: 0.5rem 0.8rem;
+  border-inline-start: 4px solid var(--danger);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+}
+
+.source-import-blockers .source-import-subtitle {
+  margin-top: 0;
+  color: color-mix(in srgb, var(--danger) 80%, var(--text-primary));
+}
+
+.source-import-replace {
+  margin: 0.8rem 0 0;
+  padding: 0.5rem 0.8rem;
+  border-inline-start: 4px solid var(--warning);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+}
+
+.source-import-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.source-import-list code,
+.source-import-facts code {
+  padding: 0 0.3em;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--text-primary) 10%, transparent);
+  font-size: 0.9em;
+}
+
+.source-import-tag {
+  display: inline-block;
+  padding: 0 0.5em;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 0.75em;
+}
+
+.source-import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 0.9rem;
+}
+
+.source-import-detected .btn {
+  margin-inline-start: 0.4rem;
+  padding: 2px 10px;
+  font-size: 0.85em;
+}
+
+.source-import-imported-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.source-import-imported-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* The result of a live test: a summary line, then one line per check */
+.source-import-test-result {
+  flex-basis: 100%;
+}
+
+/* a live region stays in the layout when empty (see the stylesheet test), so it only loses its margin */
+.source-import-test-result:empty {
+  margin: 0;
+}
+
+.source-import-test-summary {
+  margin: 0.3rem 0;
+}
+
+.source-import-test-summary.is-pass strong { color: var(--success, #3fb950); }
+.source-import-test-summary.is-fail strong { color: var(--danger); }
+
+.source-import-test-list {
+  list-style: none;
+  margin: 0.2rem 0 0.4rem;
+  padding: 0;
+}
+
+.source-import-test-check {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: baseline;
+  padding: 0.15rem 0;
+}
+
+.source-import-test-icon {
+  display: inline-block;
+  width: 1.1em;
+  text-align: center;
+  font-weight: 700;
+}
+
+.source-import-test-check.is-pass .source-import-test-icon { color: var(--success, #3fb950); }
+.source-import-test-check.is-fail .source-import-test-icon { color: var(--danger); }
+.source-import-test-check.is-warn .source-import-test-icon { color: var(--warning); }
+.source-import-test-check.is-skip .source-import-test-icon { color: var(--text-secondary); }
+
+/* verified / not verified / not tested, after an imported source's name */
+.source-import-tested {
+  margin-inline-start: 0.35rem;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  border: 1px solid var(--border-color, currentColor);
+}
+
+.source-import-tested.is-pass { color: var(--success, #3fb950); }
+.source-import-tested.is-fail { color: var(--danger); }
+.source-import-tested.is-none { color: var(--text-secondary); }
+
+.source-import-imported-row .btn {
+  flex-shrink: 0;
+  padding: 2px 10px;
+  font-size: 0.85em;
+}
+
+/* "Source catalog" (ui-settings-source-catalog.js): a <details> with the filters on top and one row per site under them */
+.source-catalog-block {
+  margin-bottom: 1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.source-catalog-block > summary {
+  cursor: pointer;
+}
+
+.source-catalog-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.4rem 0;
+}
+
+.source-catalog-lang {
+  flex: 0 0 auto;
+  min-width: 7rem;
+}
+
+.source-catalog-query {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.source-catalog-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.2rem 0;
+}
+
+/* The sites as cards in a grid, like the browse screen of a reader app: a logo, the name, the address, what it is, and the button at the bottom.
+   No inner scrollbar: the page scrolls, and "Show more" adds the next cards. */
+.source-catalog-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.source-catalog-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.85rem 0.7rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--text-primary) 4%, transparent);
+  text-align: center;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.source-catalog-card:hover {
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--border-color));
+  background: color-mix(in srgb, var(--text-primary) 7%, transparent);
+}
+
+.source-catalog-card.is-installed {
+  opacity: 0.7;
+}
+
+/* The logo over a coloured initial: when the image does not load, the initial is what is left. */
+.source-catalog-logo {
+  position: relative;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
+}
+
+.source-catalog-initial {
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.source-catalog-logo-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.source-catalog-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.source-catalog-name {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: var(--text-primary);
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.source-catalog-host {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The line that says what happened (loading, written, why not) stays in view while the person is down the grid, where the button they pressed is. */
+.source-catalog-status {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 0.35rem 0;
+  background: var(--bg-secondary, var(--bg-primary, #0d1220));
+}
+
+.source-catalog-card .source-catalog-uninstall {
+  color: var(--danger);
+}
+
+.source-catalog-link {
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.source-catalog-link:hover,
+.source-catalog-link:focus-visible {
+  text-decoration: underline;
+}
+
+.source-catalog-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  min-height: 1.2rem;
+}
+
+.source-catalog-card .btn {
+  width: 100%;
+  margin-top: auto;
+  padding: 5px 10px;
+  font-size: 0.85em;
+}
+
+/* What a row is, after the site's name: the border and the words carry the meaning, the colour only helps */
+.source-catalog-badge {
+  display: inline-block;
+  padding: 0 0.5em;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 0.75em;
+}
+
+.source-catalog-badge.is-adult,
+.source-catalog-badge.is-blocked { color: var(--danger); }
+.source-catalog-badge.is-mixed { color: var(--warning); }
+.source-catalog-badge.is-installed { color: var(--success); }
+.source-catalog-badge.is-via-engine { color: var(--primary); }
+/* Cloudflare's own orange, in every theme: it is what the label is about, not a warning level. */
+.source-catalog-badge.is-cloudflare {
+  border-color: #f6821f;
+  color: #f6821f;
+}
+
+.source-catalog-block summary:focus-visible,
+.source-catalog-block .input:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* The updates of the sources that run through the Suwayomi-Server: a row per source, the new version, what changed, and Update. */
+.source-updates-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.source-updates-list {
+  margin: 0.4rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.source-updates-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.source-updates-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.75rem;
+  min-width: 0;
+}
+
+.source-updates-name {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.source-updates-version {
+  color: var(--success);
+  font-size: 0.85em;
+}
+
+.source-updates-link {
+  color: var(--primary);
+  font-size: 0.85em;
+}
+
+.source-updates-text {
+  flex: 1 0 100%;
+  font-size: 0.85em;
+}
+
+.source-updates-text pre {
+  max-height: 14rem;
+  margin: 0.4rem 0 0;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--text-secondary);
+}
+
+.source-updates-row .btn {
+  flex-shrink: 0;
+  padding: 2px 10px;
+  font-size: 0.85em;
+}
+
+/* "On this computer" in the Suwayomi tab (ui-settings-suwayomi-local.js): where the server is, and what can be done with it */
+.suwayomi-local-actions,
+.suwayomi-local-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0.4rem 0;
+}
+
+.suwayomi-local-row {
+  justify-content: space-between;
+}
+
+.suwayomi-local-state.is-running {
+  color: var(--success);
+}
+
+.suwayomi-local-state.is-stopped {
+  color: var(--text-secondary);
+}
+
+.suwayomi-local-error {
+  color: var(--danger);
+}
+
+.suwayomi-local-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.suwayomi-local-progress progress {
+  width: 100%;
+  height: 10px;
+}
+
+.suwayomi-local-autostart {
+  margin: 0.4rem 0;
+}
+
+.suwayomi-local-script {
+  margin-top: 0.8rem;
+}
+
+.suwayomi-local-script summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+/* The repositories of the catalog (ui-settings-source-repos.js): the default one, the ones added, and a box to add another */
+.source-catalog-repos {
+  margin: 0.6rem 0;
+}
+
+.source-catalog-repos > summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+.source-catalog-repo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.source-catalog-repo-name {
+  font-weight: 600;
+}
+
+.source-catalog-repo-tag {
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--bg-tertiary, rgba(127, 127, 127, 0.18));
+  color: var(--text-secondary);
+  font-size: 0.75em;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.source-catalog-repo-status {
+  color: var(--text-secondary);
+  font-size: 0.85em;
+  margin-left: auto;
+}
+
+.source-catalog-repo-status.is-bad {
+  color: var(--danger);
+}
+
+.source-catalog-repo-add {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0.4rem 0;
+}
+
+.source-catalog-repo-add .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.source-catalog-badge.is-repo {
+  background: var(--bg-tertiary, rgba(127, 127, 127, 0.18));
+  color: var(--text-secondary);
+}

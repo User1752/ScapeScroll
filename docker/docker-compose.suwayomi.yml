@@ -1,0 +1,76 @@
+# ENSAIO do Suwayomi-Server (so isto, sem o ScrollScape): serve para ver, no teu servidor, se o catalogo de extensoes do Keiyoushi
+# funciona bem antes de ligarmos qualquer coisa a app. Ficheiro a parte: nao mexe no docker-compose.server.yml.
+#
+# Porque e que e fechado assim (ver docker/suwayomi-teste.md para o passo a passo):
+#   - SEM porta aberta na rede: so 127.0.0.1 do SERVIDOR. Para abrires a pagina do Suwayomi usas um tunel SSH (esta no passo a passo).
+#   - Autenticacao basica ligada (a password vem de docker/.env.suwayomi, que nao vai para o git).
+#   - Versao FIXA por digest (a v2.4.2366): so muda quando decidires.
+#   - Sem privilegios extra, sem capacidades de sistema, com limite de memoria e de processos.
+#   - Rede propria com sub-rede fixa (172.29.50.0/24), para a regra de firewall (docker/suwayomi-firewall.sh) impedir o contentor
+#     de falar com os aparelhos da tua rede de casa (e com a Tailscale): so a internet.
+#   - Dados num volume do Docker (nao numa pasta tua): `down -v` apaga tudo e o servidor fica como estava.
+#   - Nao vê nenhuma pasta do ScrollScape (nem o store.json com as passwords e os tokens).
+#
+# O que as extensoes SAO: programas de terceiros que correm dentro deste contentor. O Suwayomi, no codigo que li, nao verifica a assinatura
+# delas; o isolamento acima e o que limita o estrago. Instala so as que escolheres, uma a uma.
+#
+# Uso (a partir da pasta docker/ no servidor):
+#   cp env.suwayomi.example .env.suwayomi   # e muda a password
+#   docker compose -f docker-compose.suwayomi.yml up -d
+
+name: suwayomi-test
+
+services:
+  suwayomi:
+    # v2.4.2366 (a "stable" de 2026-09-30). O digest garante que e exatamente esta imagem.
+    image: ghcr.io/suwayomi/suwayomi-server:v2.4.2366@sha256:1fac27c387dc2ea9949e1a01ad7f6d6de9d72d3988338a95476748e5c45c4582
+    container_name: suwayomi-test
+    env_file: .env.suwayomi            # AUTH_USERNAME e AUTH_PASSWORD (ver env.suwayomi.example)
+    environment:
+      - TZ=Etc/UTC
+      - AUTH_MODE=basic_auth
+      # O repositorio do Keiyoushi no formato atual (protobuf). O Suwayomi 2.4.2366 le este formato.
+      - 'EXTENSION_STORES=["https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.pb"]'
+      # Ligado: e o browser (Chromium) que o Suwayomi usa no lugar do WebView do Android, para passar a verificacao da Cloudflare de alguns sites.
+      # Precisa de mais memoria (abaixo). A imagem ja traz o Chromium; se faltasse, descarregava-o no primeiro uso.
+      - KCEF_ENABLED=true
+      # Sem FlareSolverr: o ensaio mostra quais as sources que a Cloudflare bloqueia.
+      - FLARESOLVERR_ENABLED=false
+      # Nada automatico: sem atualizacao da biblioteca, sem copias de seguranca, sem ir buscar outra interface web.
+      - UPDATE_INTERVAL=0
+      - BACKUP_INTERVAL=0
+      - WEB_UI_CHANNEL=bundled
+      - WEB_UI_UPDATE_INTERVAL=0
+      # Teto de memoria do Java (o limite do contentor, abaixo, e a segunda trave).
+      - JAVA_TOOL_OPTIONS=-Xmx1g
+    volumes:
+      - suwayomi-test-data:/home/suwayomi/.local/share/Tachidesk
+    ports:
+      # So o loopback do servidor. Nao ponhas 0.0.0.0 nem o IP da rede: qualquer pessoa na rede teria acesso a algo que instala programas.
+      - "127.0.0.1:4567:4567"
+    networks:
+      - suwayomi-net
+    user: "1000:1000"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 3g
+    pids_limit: 1024
+    cpus: 2
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+    restart: "no"
+
+networks:
+  suwayomi-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.29.50.0/24
+
+volumes:
+  suwayomi-test-data:

@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# The local npm scripts (lint/test/smoke) hardcode tools\node\node.exe — the
+# portable Node this repo ships for the packaged-exe/Windows dev flow. CI
+# runs on Linux with a real Node from actions/setup-node, so this workflow
+# calls eslint/node/playwright directly instead of `npm run <script>`.
+jobs:
+  validate:
+    name: Lint, smoke check, unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npx eslint .
+
+      - name: Smoke check (syntax across server/)
+        run: node tools/smoke-check.js
+
+      - name: Unit tests
+        run: node --test tests/unit/**/*.test.js
+
+  e2e:
+    name: Playwright e2e smoke suite
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      # A fresh checkout has no data/store.json and no data/sources/ (both
+      # gitignored, kept local-only). server.js creates them at startup, and
+      # the e2e suite is read-only and skips anything that needs real
+      # library data (see tests/e2e/library-search.spec.js) — verified
+      # locally against an isolated, data-less instance before this workflow
+      # was added.
+      - name: Run e2e tests
+        run: npx playwright test
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

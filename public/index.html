@@ -1,0 +1,1896 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <base href="/">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ScrollScape - Manga Web Reader</title>
+  <link rel="icon" href="./favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" crossorigin>
+  <link rel="stylesheet" href="./styles.css?v=4" />
+  <link rel="stylesheet" href="./css-modules/header-navigation.css">
+  <link rel="stylesheet" href="./css-modules/main-container.css?v=2">
+  <link rel="stylesheet" href="./css-modules/search-section.css">
+  <link rel="stylesheet" href="./css-modules/continue-reading.css">
+  <link rel="stylesheet" href="./css-modules/filters-section.css">
+  <link rel="stylesheet" href="./css-modules/results-grid.css">
+  <link rel="stylesheet" href="./css-modules/anime-watch.css?v=15">
+  <link rel="stylesheet" href="./css-modules/history-view.css">
+  <link rel="stylesheet" href="./css-modules/manga-details-page.css?v=4">
+  <link rel="stylesheet" href="./css-modules/chapters-section.css">
+  <link rel="stylesheet" href="./css-modules/integrity-report.css">
+  <link rel="stylesheet" href="./css-modules/library.css">
+  <link rel="stylesheet" href="./css-modules/reader.css?v=7">
+  <link rel="stylesheet" href="./css-modules/tracker-modal.css?v=1">
+  <link rel="stylesheet" href="./css-modules/context-menu.css">
+  <link rel="stylesheet" href="./css-modules/settings-modal.css?v=8">
+  <link rel="stylesheet" href="./css-modules/solver-settings.css?v=1">
+  <link rel="stylesheet" href="./css-modules/source-import.css?v=17">
+  <link rel="stylesheet" href="./css-modules/footer.css">
+  <link rel="stylesheet" href="./css-modules/utilities.css">
+  <link rel="stylesheet" href="./css-modules/responsive.css">
+  <link rel="stylesheet" href="./css-modules/advanced-search-page.css?v=8">
+  <link rel="stylesheet" href="./css-modules/genre-checkbox-grid.css">
+  <link rel="stylesheet" href="./css-modules/statistics-section.css">
+  <link rel="stylesheet" href="./css-modules/recent-latest-sections.css">
+  <link rel="stylesheet" href="./css-modules/pagination.css">
+  <link rel="stylesheet" href="./css-modules/theme-toggle-button-topbar-actions.css">
+  <link rel="stylesheet" href="./css-modules/sidebar-redesign.css?v=1">
+  <link rel="stylesheet" href="./css-modules/stats-4th-streak-card.css">
+  <link rel="stylesheet" href="./css-modules/recommended-section.css?v=3">
+  <link rel="stylesheet" href="./css-modules/reading-status-selector.css">
+  <link rel="stylesheet" href="./css-modules/reviews-ratings.css">
+  <link rel="stylesheet" href="./css-modules/custom-lists.css">
+  <link rel="stylesheet" href="./css-modules/duplicate-scan.css?v=1">
+  <link rel="stylesheet" href="./css-modules/auth-gate.css?v=1">
+  <link rel="stylesheet" href="./css-modules/analytics-dashboard.css">
+  <link rel="stylesheet" href="./css-modules/analytics-wrapped.css?v=3">
+  <link rel="stylesheet" href="./css-modules/achievements.css">
+    <link rel="stylesheet" href="./css-modules/button.css">
+  <link rel="stylesheet" href="./css-modules/reading-sessions-list.css">
+  <link rel="stylesheet" href="./css-modules/zoom-controls-in-reader.css">
+  <link rel="stylesheet" href="./css-modules/toast-notifications.css">
+  <link rel="stylesheet" href="./css-modules/download-modal.css">
+  <link rel="stylesheet" href="./css-modules/library-controls-status-filter.css?v=4">
+  <link rel="stylesheet" href="./css-modules/library-cover-progress.css?v=1">
+  <link rel="stylesheet" href="./css-modules/library-tags.css?v=1">
+  <link rel="stylesheet" href="./css-modules/add-to-list-button-on-manga-details.css">
+  <link rel="stylesheet" href="./css-modules/responsive-additions.css?v=2">
+  <link rel="stylesheet" href="./css-modules/search-inline-dropdown.css">
+  <link rel="stylesheet" href="./css-modules/manga-card-genres.css">
+  <link rel="stylesheet" href="./css-modules/chapter-completeness-bar.css">
+  <link rel="stylesheet" href="./css-modules/import-local-button-local-manga-badges.css">
+  <link rel="stylesheet" href="./css-modules/import-modal.css">
+  <link rel="stylesheet" href="./css-modules/library-card-score-badge-read-only-just-shows-the-number.css">
+  <link rel="stylesheet" href="./css-modules/manga-detail-page-rating-widget.css">
+  <link rel="stylesheet" href="./css-modules/library-card-rating-widget.css">
+  <link rel="stylesheet" href="./css-modules/book-reader-rtl-double-page-spread-3d-flip.css?v=11">
+  <link rel="stylesheet" href="./css-modules/epub-reader.css?v=3">
+  <link rel="stylesheet" href="./css-modules/color-themes-override-primary-family.css">
+  <link rel="stylesheet" href="./css-modules/sidebar-ap-badge.css">
+  <link rel="stylesheet" href="./css-modules/achievements-page.css">
+  <link rel="stylesheet" href="./css-modules/shop-page.css?v=2">
+  <link rel="stylesheet" href="./css-modules/calendar-view.css">
+  <link rel="stylesheet" href="./css-modules/scroll-to-top.css">
+  <link rel="stylesheet" href="./css-modules/system-health-page.css">
+  <link rel="stylesheet" href="./css-modules/ui-checkbox.css">
+  <link rel="stylesheet" href="./css-modules/beta-design.css?v=4">
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" defer crossorigin="anonymous"></script>
+  <!-- pdf.js 4.x+ dropped the classic UMD build (pdf.min.js) from its cdnjs
+       distribution — only ESM (.mjs) builds ship now, so this assigns the
+       module's exports onto window.pdfjsLib itself for the rest of the app's
+       plain-script code (ui-pdf-reader.js, ui-local-import.js) to keep using
+       as a global, same as before. -->
+  <script type="module">
+    import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.5.438/pdf.min.mjs';
+    window.pdfjsLib = pdfjsLib;
+  </script>
+  <!-- EPUB reading (local book import): epub.js needs JSZip loaded first as
+       a global (it reads window.JSZip itself, not a bundled copy). -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.2/dist/jszip.min.js" defer crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js" defer crossorigin="anonymous"></script>
+  <style>
+    /* Icon sizing classes */
+    .icon-small { width: 16px; height: 16px; }
+    .icon-medium { width: 24px; height: 24px; }
+    .icon-large { width: 48px; height: 48px; }
+    .icon-xlarge { width: 64px; height: 64px; }
+    
+    /* Achievement rarity colors */
+    .rarity-common { color: #9ca3af; }
+    .rarity-rare { color: #3b82f6; }
+    .rarity-epic { color: var(--primary-light); }
+    .rarity-legendary { color: #f59e0b; }
+    
+    /* Icon inline display */
+    .hero-badge i, .analytics-icon i { vertical-align: middle; margin-right: 4px; }
+  </style>
+</head>
+<body>
+  <!-- Shenlong overlay (dragon ball easter egg) -->
+  <div id="shenlong-overlay" class="shenlong-overlay hidden">
+    <div class="shenlong-inner">
+      <img id="shenlong-gif" class="shenlong-dragon-gif"
+           src="https://i.redd.it/6kma4ulwjtge1.gif"
+           draggable="false" alt="Shenlong">
+      <div class="shenlong-text">Your wish has been granted!</div>
+      <div class="shenlong-ap">+50 AP</div>
+    </div>
+  </div>
+
+  <!-- Persistent AniList import indicator — stays visible (bottom-right)
+       even after the Settings modal that started the import is closed,
+       since the import itself keeps running in the background regardless. -->
+  <div id="anilistImportBadge" class="anilist-import-badge hidden">
+    <span class="anilist-import-spinner"></span>
+    <span id="anilistImportBadgeText">Importing AniList…</span>
+  </div>
+
+  <!-- Optional password gate — hidden unless a password has been set in
+       Settings and the current browser has no valid session yet. -->
+  <div id="authGateOverlay" class="auth-gate-overlay hidden">
+    <form id="authGateForm" class="auth-gate-box">
+      <h2>ScrollScape is locked</h2>
+      <p class="auth-gate-desc">Enter the access password to continue.</p>
+      <input type="password" id="authGatePasswordInput" class="input" placeholder="Password" autocomplete="current-password" autofocus>
+      <p id="authGateError" class="auth-gate-error hidden"></p>
+    </form>
+  </div>
+
+  <div class="app-shell">
+    <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+    <!-- ====================================================================
+         SIDEBAR
+    ===================================================================== -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-logo"><img src="./icon-192.png" alt="" class="sidebar-logo-img"></span>
+        <span class="sidebar-brand-text">ScrollScape</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <span class="sidebar-nav-label" data-i18n="sidebar.browse">Browse</span>
+        <a href="#" class="nav-link active" data-view="discover">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span data-i18n="nav.home">Home</span>
+        </a>
+        <a href="#" class="nav-link" data-view="advanced-search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span data-i18n="nav.search">Advanced Search</span>
+        </a>
+        <a href="#" class="nav-link" data-view="seasons">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          <span data-i18n="nav.seasons">Seasons</span>
+        </a>
+
+        <span class="sidebar-nav-label" data-i18n="sidebar.myManga">My Manga</span>
+        <a href="#" class="nav-link" data-view="library">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span data-i18n="nav.library">Library</span>
+        </a>
+        <a href="#" class="nav-link" data-view="updates">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+          <span><span data-i18n="nav.updates">Updates</span> <span id="sidebarUpdatesBadge" class="sidebar-ap-badge hidden"></span></span>
+        </a>
+        <a href="#" class="nav-link" data-view="history">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span data-i18n="nav.history">History</span>
+        </a>
+        <a href="#" class="nav-link" data-view="calendar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span data-i18n="nav.calendar">Calendar</span>
+        </a>
+
+        <span class="sidebar-nav-label" data-i18n="sidebar.statsRewards">Stats &amp; Rewards</span>
+        <a href="#" class="nav-link" data-view="analytics">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <span data-i18n="nav.analytics">Analytics</span>
+        </a>
+        <a href="#" class="nav-link" data-view="achievements">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+          <span><span data-i18n="nav.achievements">Achievements</span> <span id="sidebarApBadge" class="sidebar-ap-badge">0 AP</span></span>
+        </a>
+        <a href="#" class="nav-link" data-view="themes">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+          <span data-i18n="nav.themes">Themes</span>
+        </a>
+        <button id="btn-settings-sidebar" class="nav-link btn-settings-sidebar" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;font-size:inherit;font-family:inherit">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span data-i18n="settings.btn">Settings</span>
+        </button>
+        <a href="#" class="nav-link" data-view="system-health">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          <span data-i18n="nav.systemHealth">System Health</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer"></div>
+    </aside>
+
+    <!-- ====================================================================
+         MAIN CONTENT
+    ===================================================================== -->
+    <div class="app-content">
+      <header class="topbar">
+        <div class="container-top">
+          <button id="sidebarToggle" class="btn-sidebar-toggle" aria-label="Open menu"><i data-feather="menu"></i></button>
+          <div class="brand">ScrollScape</div>
+          <div class="topbar-actions">
+            <!-- Home page mode toggle: manga <-> anime (see ui-anime-discover.js) -->
+            <button id="homeModeToggleBtn" class="lang-toggle-btn" title="Switch home page to Anime">Anime</button>
+            <!-- Language toggle -->
+            <button id="langToggleBtn" class="lang-toggle-btn">EN</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-container">
+
+        <!-- ==================================================================
+             DISCOVER VIEW
+        ================================================================== -->
+        <section id="view-discover" class="view">
+          <div id="discoverMangaContent">
+
+          <!-- Hero banner (top trending picks) -->
+          <div class="continue-reading-section hidden" id="continueReadingSection">
+            <div class="section-header"><h3 data-i18n="home.continueReading">Continue Reading</h3></div>
+            <div id="continueReadingRow" class="continue-reading-row"></div>
+          </div>
+
+          <!-- Search -->
+          <div class="search-section" id="homeSearchSection">
+            <div class="search-container">
+              <h2 data-i18n="home.search">Search Manga</h2>
+              <div class="search-form">
+                <select id="sourceSelect" class="form-control"></select>
+                <input id="searchInput" class="form-control" data-i18n-placeholder="home.searchPlaceholder" placeholder="Enter manga title..." autocomplete="off" />
+                <button id="searchBtn" class="btn-search" data-i18n="home.searchBtn">Search</button>
+              </div>
+              <label class="search-all-sources-toggle">
+                <input type="checkbox" id="searchAllSourcesToggle">
+                <span data-i18n="home.searchAllSources">Search all sources</span>
+              </label>
+              <div id="searchStatus" class="search-status"></div>
+              <div id="searchDropdown" class="search-dropdown"></div>
+              <div id="searchPagination" class="pagination-container"></div>
+            </div>
+          </div>
+
+          <!-- Recommended For You (populated when there's library data) -->
+          <div class="recommended-section" id="recommendedSection" style="display:none">
+            <div class="section-header">
+              <h3 data-i18n="home.recommended">Recommended For You</h3>
+              <span class="recommended-genres-label muted" style="font-size:0.8rem;margin-left:0.6rem;"></span>
+            </div>
+            <div id="recommendedRow" class="popular-row"></div>
+          </div>
+
+          <!-- Popular Today -->
+          <div class="popular-section">
+            <div class="popular-header"><h3 data-i18n="home.popularToday">Most Popular Today</h3></div>
+            <div id="popularRow" class="popular-row"></div>
+          </div>
+
+          <!-- Recently Added -->
+          <div class="recent-section">
+            <div class="section-header"><h3 data-i18n="home.recentlyAdded">Recently Added</h3></div>
+            <div id="recentlyAddedRow" class="results-grid"></div>
+          </div>
+
+          <!-- Latest Updates -->
+          <div class="latest-section">
+            <div class="section-header"><h3 data-i18n="home.latestUpdates">Latest Updates</h3></div>
+            <div id="latestUpdatesRow" class="results-grid"></div>
+          </div>
+          </div>
+
+          <!-- ================================================================
+               ANIME HOME CONTENT (see ui-anime-discover.js)
+          ================================================================= -->
+          <div id="discoverAnimeContent" class="hidden">
+
+          <!-- Continue Watching -->
+          <div class="continue-reading-section hidden" id="animeHomeContinueSection">
+            <div class="section-header"><h3>Continue Watching</h3></div>
+            <div id="animeHomeContinueRow" class="continue-reading-row"></div>
+          </div>
+
+          <!-- Search -->
+          <div class="search-section" id="animeHomeSearchSection">
+            <div class="search-container">
+              <h2>Search Anime</h2>
+              <div class="search-form">
+                <input id="animeHomeSearchInput" class="form-control" placeholder="Enter anime title..." autocomplete="off" />
+                <button id="animeHomeSearchBtn" class="btn-search">Search</button>
+              </div>
+              <p class="muted" style="font-size:0.8rem;margin:0.4rem 0 0;">Sources: AniZone, AnimeParadise (see Settings &gt; Anime &gt; Sources for more)</p>
+              <div id="animeHomeSearchStatus" class="search-status"></div>
+              <div id="animeHomeSearchResults" class="results-grid"></div>
+            </div>
+          </div>
+
+          <!-- Recommended For You -->
+          <div class="recommended-section" id="animeHomeRecommendedSection" style="display:none">
+            <div class="section-header"><h3>Recommended For You</h3></div>
+            <div id="animeHomeRecommendedRow" class="popular-row"></div>
+          </div>
+
+          <!-- Most Popular -->
+          <div class="popular-section">
+            <div class="popular-header"><h3>Most Popular</h3></div>
+            <div id="animeHomePopularRow" class="popular-row"></div>
+          </div>
+
+          <!-- Current Season -->
+          <div class="recent-section">
+            <div class="section-header">
+              <h3 id="animeHomeSeasonTitle">Current Season</h3>
+              <a href="#" id="seeAllSeasonsLink" class="section-header-link" data-i18n="home.seeAllSeasons">See all seasons →</a>
+            </div>
+            <div id="animeHomeSeasonRow" class="results-grid"></div>
+          </div>
+
+          <!-- New Episodes -->
+          <div class="latest-section">
+            <div class="section-header"><h3>New Episodes</h3></div>
+            <div id="animeHomeNewEpisodesRow" class="results-grid"></div>
+          </div>
+          </div>
+        </section>
+
+        <!-- ==================================================================
+             MANGA DETAILS VIEW
+        ================================================================== -->
+        <section id="view-manga-details" class="view hidden">
+          <div class="manga-page">
+            <button id="backBtn" class="btn-back" data-i18n="manga.back">Back</button>
+            <div id="details" class="manga-detail-section"></div>
+            <!-- Reading Status Selector (rendered by JS) -->
+            <div id="readingStatusSection"></div>
+            <div id="chapters" class="chapters-section"></div>
+          </div>
+        </section>
+
+        <!-- ==================================================================
+             LIBRARY VIEW
+        ================================================================== -->
+        <!-- LIBRARY VIEW — shares one page for manga and anime, same toggle
+             pattern as History/Calendar (state.settings.libraryMode). Both
+             sides keep their own toolbar, grid and side-action panel exactly
+             as built separately (manga favorites and animeFavorites remain
+             two distinct data sets — see schema.js's animeFavorites
+             comment) — this only changes which one is visible/mounted under
+             one "Library" nav entry instead of two. See
+             ui-library.js's applyLibraryMode. -->
+        <section id="view-library" class="view hidden">
+          <div id="libraryMangaContent">
+            <div class="library-container">
+              <div class="library-header">
+                <h2 data-i18n="library.title">My Library</h2>
+                <div class="library-controls">
+                  <select id="libraryStatusFilter" class="form-control form-control-sm">
+                    <option value="all">All Manga</option>
+                    <option value="reading">Reading</option>
+                    <option value="completed">Completed</option>
+                    <option value="on_hold">On Hold</option>
+                    <option value="plan_to_read">Plan to Read</option>
+                    <option value="dropped">Dropped</option>
+                  </select>
+                  <select id="libraryCategoryFilter" class="form-control form-control-sm">
+                    <option value="all">All Categories</option>
+                  </select>
+                  <button type="button" class="btn secondary library-cat-manage" id="btnManageCategories" title="Manage categories" aria-label="Manage categories">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                  </button>
+                  <select id="libraryTrackerFilter" class="form-control form-control-sm">
+                    <option value="all">All Tracker</option>
+                    <option value="anilist">AniList</option>
+                  </select>
+                  <div class="library-search-wrap" title="Search in current filtered category">
+                    <span class="library-search-icon" aria-hidden="true">&#128269;</span>
+                    <input id="librarySearchInput" class="library-search-input" type="text" placeholder="Search manga..." autocomplete="off" spellcheck="false">
+                  </div>
+                  <span id="libraryCount" class="library-stats">0 manga</span>
+                </div>
+              </div>
+              <div class="library-grid" id="library"></div>
+            </div>
+            <!-- Floating vertical action panel (right edge, beside scrollbar) -->
+            <div class="library-side-actions" id="librarySideActions">
+              <button class="lib-side-btn" id="btnSortLibrary" title="Sort library">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><line x1="18" y1="4" x2="18" y2="20"></line><polyline points="14 16 18 20 22 16"></polyline><line x1="6" y1="20" x2="6" y2="4"></line><polyline points="10 8 6 4 2 8"></polyline></svg>
+                <span class="lib-side-label" id="libSortLabel">Added</span>
+                <span class="lib-side-sublabel">Sort</span>
+              </button>
+              <hr class="lib-side-divider">
+              <button class="lib-side-btn" id="btnLibraryTags" title="Filter by tags">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                <span class="lib-side-label">Tags</span>
+                <span class="lib-tags-badge" id="libTagsBadge" hidden>0</span>
+              </button>
+              <button class="lib-side-btn" id="btnMigrateLibrary" title="Migrate manga between sources">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                <span class="lib-side-label">Migrate</span>
+              </button>
+              <button class="lib-side-btn" id="btnMigrateAllLibrary" title="Scan the whole library and migrate everything with a better source available, regardless of source">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                <span class="lib-side-label">Migrate<br>All</span>
+              </button>
+              <button class="lib-side-btn" id="btnScanDuplicates" title="Scan library for duplicates">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span class="lib-side-label">Find<br>Dupes</span>
+              </button>
+              <button class="lib-side-btn" id="btnCoverScan" title="Scan for missing or low-quality covers, and review AniList replacements">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                <span class="lib-side-label">Cover<br>Scan</span>
+              </button>
+              <button class="lib-side-btn" id="importLocalBtn" title="Import local manga" onclick="showImportModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <span class="lib-side-label">Import<br>Local</span>
+              </button>
+              <button class="lib-side-btn" id="btnSources" title="Choose visible sources">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                <span class="lib-side-label">Sources</span>
+              </button>
+              <button class="lib-side-btn" id="btnEditPage" title="Customize library card">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+                <span class="lib-side-label">Edit Page</span>
+              </button>
+            </div>
+          </div>
+          <div id="libraryAnimeContent" class="hidden">
+            <div class="page-container">
+              <h1 class="page-title">My Anime</h1>
+              <div class="anime-library-toolbar">
+                <select id="animeLibraryStatusFilter" class="form-control">
+                  <option value="">All statuses</option>
+                  <option value="not-started">Not Started</option>
+                  <option value="watching">Watching</option>
+                  <option value="completed">Completed</option>
+                  <option value="on_hold">On Hold</option>
+                  <option value="plan_to_watch">Plan to Watch</option>
+                  <option value="dropped">Dropped</option>
+                </select>
+                <select id="animeLibraryCategoryFilter" class="form-control">
+                  <option value="">All categories</option>
+                </select>
+                <button type="button" class="btn secondary library-cat-manage" id="btnManageAnimeCategories" title="Manage categories" aria-label="Manage categories">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </button>
+                <button id="animeLibraryExportBtn" class="btn btn-secondary">Export (Anikku)</button>
+              </div>
+              <div id="animeLibraryEmpty" class="hidden muted" style="padding:20px 0;">Nothing here yet — switch the home page to Anime, search a title and hit "Add to My Anime".</div>
+              <div id="animeLibraryGrid" class="results-grid"></div>
+            </div>
+            <!-- Floating vertical action panel (right edge, beside scrollbar) — same component as #librarySideActions, separate instance since anime favorites are a distinct data set (see schema.js's animeFavorites comment above). -->
+            <div class="library-side-actions" id="animeLibrarySideActions">
+              <button class="lib-side-btn" id="btnSortAnimeLibrary" title="Sort library">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><line x1="18" y1="4" x2="18" y2="20"></line><polyline points="14 16 18 20 22 16"></polyline><line x1="6" y1="20" x2="6" y2="4"></line><polyline points="10 8 6 4 2 8"></polyline></svg>
+                <span class="lib-side-label" id="animeLibSortLabel">Added</span>
+                <span class="lib-side-sublabel">Sort</span>
+              </button>
+              <hr class="lib-side-divider">
+              <button class="lib-side-btn" id="btnAnimeLibraryTags" title="Filter by tags">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                <span class="lib-side-label">Tags</span>
+                <span class="lib-tags-badge" id="animeLibTagsBadge" hidden>0</span>
+              </button>
+              <button class="lib-side-btn" id="btnScanAnimeDuplicates" title="Scan library for duplicates">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span class="lib-side-label">Find<br>Dupes</span>
+              </button>
+              <button class="lib-side-btn" id="importLocalAnimeBtn" title="Import an Anikku backup (.tachibk)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <span class="lib-side-label">Import<br>Local</span>
+              </button>
+              <button class="lib-side-btn" id="btnAnimeSources" title="Choose visible anime sources">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                <span class="lib-side-label">Sources</span>
+              </button>
+              <button class="lib-side-btn" id="btnEditAnimeLibraryCard" title="Customize library card">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lib-side-svg"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+                <span class="lib-side-label">Edit Page</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================================
+             UPDATES VIEW — manga/anime with new chapters/episodes since
+             their last refresh (see ui-updates.js). Populated entirely by
+             JS, same skeleton-only pattern as view-customize.
+        ================================================================== -->
+        <section id="view-updates" class="view hidden">
+          <div class="library-container">
+            <div class="library-header">
+              <h2 data-i18n="updates.title">Updates</h2>
+              <span id="updatesCount" class="library-stats">0 updates</span>
+            </div>
+            <div id="updatesFilterRow" style="display:flex;gap:0.5rem;margin-bottom:1rem">
+              <button type="button" class="btn primary updates-filter-btn" data-filter="all" data-i18n="updates.filterAll">All</button>
+              <button type="button" class="btn secondary updates-filter-btn" data-filter="manga" data-i18n="updates.filterManga">Manga</button>
+              <button type="button" class="btn secondary updates-filter-btn" data-filter="anime" data-i18n="updates.filterAnime">Anime</button>
+            </div>
+            <div id="updatesGrid" class="library-grid"></div>
+          </div>
+        </section>
+
+        <!-- ==================================================================
+             SEASONS VIEW — browse any past/future anime season (AniList),
+             modeled on MyAnimeList's /anime/season. See ui-anime-seasons.js.
+        ================================================================== -->
+        <section id="view-seasons" class="view hidden">
+          <div class="library-container">
+            <div class="library-header">
+              <h2 data-i18n="nav.seasons">Seasons</h2>
+            </div>
+            <div class="seasons-controls">
+              <button id="seasonsPrevBtn" class="btn secondary" title="Previous season">&larr;</button>
+              <h3 id="seasonsTitle" class="seasons-current-title">Winter 2026</h3>
+              <button id="seasonsNextBtn" class="btn secondary" title="Next season">&rarr;</button>
+              <select id="seasonsSeasonSelect" class="input">
+                <option value="WINTER">Winter</option>
+                <option value="SPRING">Spring</option>
+                <option value="SUMMER">Summer</option>
+                <option value="FALL">Fall</option>
+              </select>
+              <select id="seasonsYearSelect" class="input"></select>
+              <button id="seasonsTodayBtn" class="btn secondary">Today</button>
+              <select id="seasonsSortSelect" class="input seasons-sort-select">
+                <option value="POPULARITY_DESC">Sort: Popularity</option>
+                <option value="SCORE_DESC">Sort: Score</option>
+                <option value="TITLE_ROMAJI">Sort: Title A-Z</option>
+                <option value="START_DATE">Sort: Start date</option>
+              </select>
+            </div>
+            <div class="filters-row">
+              <div class="filter-group">
+                <label class="toggle-label">
+                  <span class="toggle-text">Hide anime with no confirmed air date yet</span>
+                  <input type="checkbox" id="seasonsHideUnreleasedToggle">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+            <div id="seasonsStatus" class="search-status"></div>
+            <div id="seasonsGrid" class="results-grid"></div>
+            <div style="text-align:center;margin-top:1.5rem">
+              <button id="seasonsLoadMoreBtn" class="btn secondary hidden">Load More</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================================
+             ANALYTICS VIEW
+        ================================================================== -->
+        <section id="view-analytics" class="view hidden">
+          <div class="analytics-container">
+            <h2 class="analytics-title" data-i18n="analytics.title">My Reading Analytics</h2>
+
+            <nav class="analytics-tabs" id="analyticsTabs" role="tablist">
+              <button class="analytics-tab active" data-analytics-tab="overview" role="tab" aria-selected="true" data-i18n="analytics.tabOverview">Overview</button>
+              <button class="analytics-tab" data-analytics-tab="wrapped" role="tab" aria-selected="false" data-i18n="analytics.tabWrapped">Wrapped</button>
+            </nav>
+
+            <div id="analyticsOverview">
+
+            <!-- Summary cards -->
+            <div class="analytics-stats">
+              <div class="analytics-card">
+                <div class="analytics-icon"><i data-feather="book-open"></i></div>
+                <div class="analytics-value" id="anaChapters">0</div>
+                <div class="analytics-label">Chapters Read</div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-icon"><i data-feather="play-circle"></i></div>
+                <div class="analytics-value" id="anaEpisodes">0</div>
+                <div class="analytics-label">Episodes Watched</div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-icon"><i data-feather="clock"></i></div>
+                <div class="analytics-value" id="anaTime">0h</div>
+                <div class="analytics-label">Time Spent</div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-icon"><i data-feather="book-open"></i></div>
+                <div class="analytics-value" id="anaTimeReading">0h</div>
+                <div class="analytics-label">Time Reading</div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-icon"><i data-feather="play-circle"></i></div>
+                <div class="analytics-value" id="anaTimeWatching">0h</div>
+                <div class="analytics-label">Time Watching</div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-icon"><i data-feather="moon"></i></div>
+                <div class="analytics-value" id="anaTimeAfk">0h</div>
+                <div class="analytics-label">Time AFK</div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-icon"><i data-feather="star"></i></div>
+                <div class="analytics-value" id="anaMeanScore">&#8212;</div>
+                <div class="analytics-label">Mean Score</div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-icon"><i data-feather="book"></i></div>
+                <div class="analytics-value" id="anaLibrary">0</div>
+                <div class="analytics-label">In Library</div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-icon"><i data-feather="check-circle"></i></div>
+                <div class="analytics-value" id="anaCompletionRate">0%</div>
+                <div class="analytics-label">Completion Rate</div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-icon"><i data-feather="x-circle"></i></div>
+                <div class="analytics-value" id="anaDropoffRate">0%</div>
+                <div class="analytics-label">Drop-off Rate</div>
+              </div>
+            </div>
+
+            <!-- Status distribution -->
+            <div class="analytics-section">
+              <h3><i data-feather="bar-chart-2"></i> Library by Status</h3>
+              <div id="statusDistribution" class="status-distribution"></div>
+            </div>
+
+            <!-- Genre overview -->
+            <div class="analytics-section">
+              <h3><i data-feather="tag"></i> Genre Overview</h3>
+              <div id="genreOverview" class="genre-overview"></div>
+            </div>
+
+            <!-- Reading activity heatmap -->
+            <div class="analytics-section analytics-section--heatmap">
+              <div class="analytics-section-header-row">
+                <h3><i data-feather="activity"></i> <span data-i18n="analytics.readingActivity">Reading Activity</span></h3>
+                <div class="heatmap-range-toggle" id="heatmapRangeToggle">
+                  <button type="button" class="heatmap-range-btn" data-range="month">Month</button>
+                  <button type="button" class="heatmap-range-btn" data-range="year">Year</button>
+                </div>
+              </div>
+              <div id="readingActivityHeatmap" class="activity-heatmap"></div>
+            </div>
+            </div><!-- /analyticsOverview -->
+
+            <!-- Wrapped: a look back by period (ui-analytics-wrapped.js) -->
+            <div id="analyticsWrapped" class="hidden"></div>
+          </div>
+        </section>
+
+        <!-- ==================================================================
+             ACHIEVEMENTS VIEW
+        ================================================================== -->
+        <section id="view-achievements" class="view hidden">
+          <div class="ach-page">
+            <div class="ach-page-header">
+              <div>
+                <h2 class="ach-page-title" data-i18n="achievements.title">Achievements</h2>
+                <p class="ach-page-subtitle" data-i18n="achievements.subtitle">Unlock achievements by reading manga — each one earns 1 AP</p>
+              </div>
+              <div class="ap-hero-badge">
+                <div id="achDragonBall" class="ach-dragon-ball" title="..."></div>
+                <div class="ap-hero-value" id="achPageApBalance">0</div>
+                <div class="ap-hero-label" data-i18n="common.apAvailable">AP Available</div>
+              </div>
+            </div>
+            <div id="achPageContent"></div>
+          </div>
+        </section>
+
+        <!-- ==================================================================
+             THEMES VIEW
+        ================================================================== -->
+        <section id="view-themes" class="view hidden">
+          <div class="shop-page themes-page">
+            <div class="ach-page-header">
+              <div>
+                <h2 class="ach-page-title" data-i18n="nav.themes">Themes</h2>
+                <p class="ach-page-subtitle" data-i18n="themes.subtitle">Themes you bought and presets you created</p>
+              </div>
+              <div class="themes-header-actions">
+                <button id="openThemeCustomizeBtn" class="btn secondary" data-i18n="themes.btnCustomize">Customization</button>
+                <button id="openThemeShopBtn" class="btn primary" data-i18n="themes.btnOpenShop">Open Shop</button>
+              </div>
+            </div>
+
+            <div class="themes-section-block">
+              <h3 class="section-title" data-i18n="themes.ownedTitle">Owned Themes</h3>
+              <div id="themesOwnedGrid" class="shop-grid"></div>
+            </div>
+
+            <div class="themes-section-block">
+              <h3 class="section-title" data-i18n="themes.customPresetsTitle">Your Theme Presets</h3>
+              <div id="themesCustomGrid" class="shop-grid"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================================
+             SHOP VIEW
+        ================================================================== -->
+        <section id="view-shop" class="view hidden">
+          <div class="shop-page">
+            <div class="ach-page-header">
+              <div>
+                <h2 class="ach-page-title" data-i18n="nav.shop">Theme Shop</h2>
+                <p class="ach-page-subtitle" data-i18n="shop.subtitle">Spend your Achievement Points on exclusive themes</p>
+              </div>
+              <div class="ap-hero-badge">
+                <img src="/dragon-ball-1.png" class="db-sprite" alt="Dragon Ball" draggable="false">
+                <div class="ap-hero-value" id="shopApBalance">0</div>
+                <div class="ap-hero-label" data-i18n="common.apAvailable">AP Available</div>
+              </div>
+            </div>
+            <div id="shopGrid" class="shop-grid"></div>
+          </div>
+        </section>
+
+        <!-- ==================================================================
+             CUSTOMIZATION VIEW
+        ================================================================== -->
+        <section id="view-customize" class="view hidden"></section>
+
+        <!-- ==================================================================
+             ADVANCED SEARCH VIEW
+        ================================================================== -->
+        <section id="view-advanced-search" class="view hidden">
+          <div class="advanced-search-page">
+            <h1 class="page-title" data-i18n="nav.search">Advanced Search</h1>
+
+          <div id="advancedSearchMangaContent">
+            <!-- Two columns: the search and its results, and the genres as a list on the right (see advanced-search-page.css). -->
+            <div class="adv-layout">
+            <div class="adv-main">
+            <div class="search-section">
+              <div class="search-container">
+                <div class="search-form">
+                  <select id="advancedSourceSelect" class="form-control"></select>
+                  <input id="advancedSearchInput" class="form-control" placeholder="Enter manga title..." />
+                  <button id="advancedSearchBtn" class="btn-search">Search</button>
+                  <button id="randomMangaBtn" class="btn-random"><i data-feather="shuffle" class="icon-small"></i> Random</button>
+                </div>
+                <label class="search-all-sources-toggle">
+                  <input type="checkbox" id="advancedSearchAllSourcesToggle">
+                  <span data-i18n="home.searchAllSources">Search all sources</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="advanced-filters-section">
+              <!-- Row 1: dropdowns -->
+              <div class="filters-row">
+                <div class="filter-group">
+                  <label>Sort by</label>
+                  <select id="advancedOrderBy" class="form-control filter-dropdown">
+                    <option value="relevance">Best Match</option>
+                    <option value="latestUploadedChapter">Latest Upload</option>
+                    <option value="title">Title (A-Z)</option>
+                    <option value="-title">Title (Z-A)</option>
+                    <option value="rating">Highest Rating</option>
+                    <option value="followedCount">Most Follows</option>
+                    <option value="createdAt">Recently Added</option>
+                    <option value="year">Year Ascending</option>
+                    <option value="-year">Year Descending</option>
+                  </select>
+                </div>
+                <div class="filter-group">
+                  <label>Format</label>
+                  <select id="advancedFormat" class="form-control filter-dropdown">
+                    <option value="">Any</option>
+                    <option value="manga">Manga</option>
+                    <option value="manhwa">Manhwa</option>
+                    <option value="manhua">Manhua</option>
+                    <option value="doujinshi">Doujinshi</option>
+                    <option value="oneshot">One-Shot</option>
+                    <option value="european-manga">European Manga</option>
+                    <option value="american-manga">American Manga</option>
+                    <option value="hongkong-manga">Hong Kong Manga</option>
+                    <option value="other-manga">Other Manga</option>
+                  </select>
+                </div>
+                <div class="filter-group" id="advancedContentRatingGroup">
+                  <label>Content Rating</label>
+                  <select id="advancedContentRating" class="form-control filter-dropdown">
+                    <option value="">Any</option>
+                    <option value="safe">Safe</option>
+                    <option value="suggestive">Suggestive</option>
+                    <option value="erotica">Erotica</option>
+                  </select>
+                </div>
+                <div class="filter-group">
+                  <label>Publication Status</label>
+                  <select id="advancedPublicationStatus" class="form-control filter-dropdown">
+                    <option value="">Any</option>
+                    <option value="ongoing">Ongoing</option>
+                    <option value="completed">Completed</option>
+                    <option value="hiatus">Hiatus</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+
+            </div>
+
+            <div id="advancedSearchStatus" class="search-status"></div>
+            <div class="results-section">
+              <div id="advancedResults" class="results-grid"></div>
+            </div>
+            <div id="advancedSearchPagination" class="pagination-container"></div>
+            </div>
+
+            <aside class="adv-aside" aria-label="Genres">
+              <div class="genre-filter-group" id="genreFilterGroup">
+                <div class="genre-filter-header" id="genreFilterToggle" style="cursor:pointer;" title="Toggle genres">
+                  <span class="genre-filter-title">Genres <span id="genreCollapseArrow" style="display:inline-block;transition:transform 0.2s;margin-left:0.3rem;font-size:0.7rem;">▼</span></span>
+                  <button type="button" class="genre-clear-btn" id="clearGenresBtn">Clear</button>
+                </div>
+                <input type="search" id="genreSearchInput" class="form-control genre-search-input" placeholder="Search genres..." aria-label="Search genres" autocomplete="off" spellcheck="false">
+                <div class="genre-grid-wrap"><div class="genre-grid" id="genreGrid">
+                  <label class="genre-check"><input type="checkbox" value="Action"><span>Action</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Adventure"><span>Adventure</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Comedy"><span>Comedy</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Cooking"><span>Cooking</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Doujinshi"><span>Doujinshi</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Drama"><span>Drama</span></label>
+                  <label class="genre-check" data-nsfw="1"><input type="checkbox" value="Ecchi"><span>Ecchi</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Fantasy"><span>Fantasy</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Gender Bender"><span>Gender Bender</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Harem"><span>Harem</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Historical"><span>Historical</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Horror"><span>Horror</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Isekai"><span>Isekai</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Josei"><span>Josei</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Martial Arts"><span>Martial Arts</span></label>
+                  <label class="genre-check" data-nsfw="1"><input type="checkbox" value="Mature"><span>Mature</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Mecha"><span>Mecha</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Mystery"><span>Mystery</span></label>
+                  <label class="genre-check"><input type="checkbox" value="One Shot"><span>One Shot</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Our Translation"><span>Our Translation</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Psychological"><span>Psychological</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Romance"><span>Romance</span></label>
+                  <label class="genre-check"><input type="checkbox" value="School Life"><span>School Life</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Sci-fi"><span>Sci-fi</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Seinen"><span>Seinen</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Shoujo"><span>Shoujo</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Shoujo Ai"><span>Shoujo Ai</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Shounen"><span>Shounen</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Shounen Ai"><span>Shounen Ai</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Slice of Life"><span>Slice of Life</span></label>
+                  <label class="genre-check" data-nsfw="1"><input type="checkbox" value="Smut"><span>Smut</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Sports"><span>Sports</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Supernatural"><span>Supernatural</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Tragedy"><span>Tragedy</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Webtoons"><span>Webtoons</span></label>
+                </div></div>
+              </div>
+            </aside>
+            </div>
+          </div>
+
+          <!-- Anime side — backed directly by AniList's own search/sort/genre
+               filters (there's no per-installed-source dispatch to do here,
+               unlike manga: anime search is always one AniList query). See
+               ui-anime-advanced-search.js. -->
+          <div id="advancedSearchAnimeContent" class="hidden">
+            <div class="search-section">
+              <div class="search-container">
+                <div class="search-form">
+                  <input id="animeAdvancedSearchInput" class="form-control" placeholder="Enter anime title..." />
+                  <button id="animeAdvancedSearchBtn" class="btn-search">Search</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="advanced-filters-section">
+              <div class="filters-row">
+                <div class="filter-group">
+                  <label>Sort by</label>
+                  <select id="animeAdvancedSort" class="form-control filter-dropdown">
+                    <option value="SEARCH_MATCH">Best Match</option>
+                    <option value="POPULARITY_DESC">Most Popular</option>
+                    <option value="SCORE_DESC">Highest Score</option>
+                    <option value="TRENDING_DESC">Trending</option>
+                    <option value="TITLE_ROMAJI">Title (A-Z)</option>
+                    <option value="TITLE_ROMAJI_DESC">Title (Z-A)</option>
+                    <option value="START_DATE_DESC">Newest</option>
+                    <option value="START_DATE">Oldest</option>
+                  </select>
+                </div>
+                <div class="filter-group">
+                  <label>Publication Status</label>
+                  <select id="animeAdvancedStatus" class="form-control filter-dropdown">
+                    <option value="">Any</option>
+                    <option value="RELEASING">Releasing</option>
+                    <option value="FINISHED">Finished</option>
+                    <option value="NOT_YET_RELEASED">Not Yet Released</option>
+                    <option value="HIATUS">Hiatus</option>
+                    <option value="CANCELLED">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Genres (AniList's fixed 19-value enum, genre_in) and Tags
+                   (its much larger, 300+-entry taxonomy, tag_in) are two
+                   distinct AniList query arguments under the hood — they
+                   don't overlap (confirmed: none of the 19 genre names
+                   appear anywhere in the live tag collection) — but from a
+                   filtering standpoint both are just "pick categories to
+                   narrow results by", so they share one combined,
+                   collapsed-by-default section instead of two separate
+                   ones. Genres render immediately (small, hardcoded); Tags
+                   still lazy-fetch from AniList only on first expand — see
+                   _fetchAnimeTagCollection in ui-anime-advanced-search.js. -->
+              <div class="genre-filter-group collapsed" id="animeGenreTagFilterGroup">
+                <div class="genre-filter-header" id="animeGenreTagFilterToggle" style="cursor:pointer;" title="Toggle genres & tags">
+                  <span class="genre-filter-title">Genres &amp; Tags <span id="animeGenreTagCollapseArrow" style="display:inline-block;transition:transform 0.2s;margin-left:0.3rem;font-size:0.7rem;">▼</span></span>
+                  <button type="button" class="genre-clear-btn" id="animeClearGenresTagsBtn">Clear</button>
+                </div>
+                <div class="genre-grid-wrap"><div class="genre-grid" id="animeGenreGrid">
+                  <label class="genre-check"><input type="checkbox" value="Action"><span>Action</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Adventure"><span>Adventure</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Comedy"><span>Comedy</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Drama"><span>Drama</span></label>
+                  <label class="genre-check" data-nsfw="1"><input type="checkbox" value="Ecchi"><span>Ecchi</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Fantasy"><span>Fantasy</span></label>
+                  <label class="genre-check" data-nsfw="1"><input type="checkbox" value="Hentai"><span>Hentai</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Horror"><span>Horror</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Mahou Shoujo"><span>Mahou Shoujo</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Mecha"><span>Mecha</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Music"><span>Music</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Mystery"><span>Mystery</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Psychological"><span>Psychological</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Romance"><span>Romance</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Sci-Fi"><span>Sci-Fi</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Slice of Life"><span>Slice of Life</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Sports"><span>Sports</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Supernatural"><span>Supernatural</span></label>
+                  <label class="genre-check"><input type="checkbox" value="Thriller"><span>Thriller</span></label>
+                </div></div>
+                <div class="genre-grid-wrap" style="margin-top:0.75rem;"><div class="genre-grid" id="animeTagGrid">
+                  <div class="muted" id="animeTagGridLoading" style="padding:8px;">Loading tags…</div>
+                </div></div>
+              </div>
+            </div>
+
+            <div id="animeAdvancedSearchStatus" class="search-status"></div>
+            <div class="results-section">
+              <div id="animeAdvancedResults" class="results-grid"></div>
+            </div>
+            <div id="animeAdvancedSearchPagination" class="pagination-container"></div>
+          </div>
+          </div>
+        </section>
+
+        <!-- ==================================================================
+             ANIME DETAILS VIEW (M2) — its own page (not a panel tucked under
+             search), same navigateTo()/back-stack treatment as manga-details.
+             Entered via setView("anime-details", { show, resume }) — see
+             ui-view-management.js's on-enter hook and _animeTestSelectShow().
+        ================================================================== -->
+        <section id="view-anime-details" class="view hidden">
+          <div class="advanced-search-page anime-watch-panel">
+            <div class="anime-watch-breadcrumb">
+              <a href="#" id="animeTestBreadcrumbHome" class="anime-watch-breadcrumb-link">Anime</a> <span class="sep">&rsaquo;</span> <span id="animeTestShowTitle"></span> <span class="sep">&rsaquo;</span> <span id="animeTestEpisodeCrumb"></span>
+            </div>
+            <div class="anime-watch-layout anime-watch-layout-v2" id="animeWatchLayout">
+              <!-- LEFT — info card: cover, title, badges, synopsis, genres,
+                   stats. Hidden entirely in Theater mode. -->
+              <aside class="anime-watch-info-sidebar" id="animeWatchInfoSidebar">
+                <img id="animeTestCoverImg" class="anime-watch-cover-thumb hidden" alt="">
+                <h2 id="animeTestShowTitle2" class="anime-watch-title"></h2>
+                <div id="animeTestBadgeRow" class="anime-watch-badge-row"></div>
+                <div class="anime-watch-sidebar-actions">
+                  <button id="animeTestFavBtn" class="btn btn-secondary">Add to My Anime</button>
+                  <div class="anime-categories-dropdown-wrap">
+                    <button id="animeTestCategoriesBtn" class="btn btn-secondary">Add to List</button>
+                    <div id="animeTestCategoriesPanel" class="anime-categories-panel hidden"></div>
+                  </div>
+                  <button id="animeTestMangaCheckBtn" class="btn btn-secondary">Check for Manga</button>
+                  <button id="animeTrackerBtn" class="btn btn-tracker">Tracker</button>
+                </div>
+                <div id="animeTestMangaCheckResult" class="hidden"></div>
+                <div id="animeTestGenrePills" class="anime-genre-pills"></div>
+                <div id="animeTestStats" class="anime-stats-grid"></div>
+              </aside>
+
+              <!-- CENTER — player, now-playing line, action bar, sub/dub +
+                   server pills. -->
+              <div class="anime-watch-player-col">
+                <div class="anime-watch-player-wrap" id="animeTestPlayerWrap">
+                  <!-- No native `controls` — a custom bar (below) replaces
+                       it, matching the settings-menu-driven layout (gear ->
+                       Playback/Quality/Audio/Captions submenus) requested
+                       over the plain browser-default bar. Still the exact
+                       same <video> element hls.js/skip/analytics/quality
+                       logic already targets — only the UI on top changes,
+                       not the playback pipeline. -->
+                  <video id="animeTestVideo"></video>
+
+                  <button id="animeTestCenterPlayBtn" class="anime-player-center-btn" type="button" aria-label="Play">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  </button>
+
+                  <!-- Real per-episode opening timestamps from AniSkip
+                       (community-sourced, keyed by MAL id + episode) — not
+                       a guessed fixed-length skip, since openings vary in
+                       length between shows. Hidden unless AniSkip actually
+                       has data for this exact episode, and only shown while
+                       playback is inside that window. -->
+                  <button id="animeTestSkipOpeningBtn" class="anime-watch-skip-btn hidden" type="button">Skip Opening &#9654;&#9654;</button>
+
+                  <div class="anime-player-controls" id="animeTestPlayerControls">
+                    <div class="anime-player-seek-row">
+                      <div class="anime-player-seek-track" id="animeTestSeekTrack">
+                        <div class="anime-player-seek-buffered" id="animeTestSeekBuffered"></div>
+                        <div class="anime-player-seek-played" id="animeTestSeekPlayed"></div>
+                        <div class="anime-player-seek-handle" id="animeTestSeekHandle"></div>
+                      </div>
+                    </div>
+                    <div class="anime-player-controls-row">
+                      <div class="anime-player-controls-left">
+                        <button id="animeTestPlayBtn" class="anime-player-btn" type="button" aria-label="Play">
+                          <svg viewBox="0 0 24 24" fill="currentColor" class="icon-play"><path d="M8 5v14l11-7z"/></svg>
+                          <svg viewBox="0 0 24 24" fill="currentColor" class="icon-pause hidden"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+                        </button>
+                        <div class="anime-player-volume-group">
+                          <button id="animeTestMuteBtn" class="anime-player-btn" type="button" aria-label="Mute">
+                            <svg viewBox="0 0 24 24" fill="currentColor" class="icon-vol-on"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05A4.48 4.48 0 0 0 16.5 12z"/></svg>
+                            <svg viewBox="0 0 24 24" fill="currentColor" class="icon-vol-off hidden"><path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.17l2.45 2.45c.03-.2.05-.4.05-.59zM19 12c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>
+                          </button>
+                          <input type="range" id="animeTestVolumeSlider" class="anime-player-volume-slider" min="0" max="1" step="0.05" value="1">
+                        </div>
+                        <div class="anime-player-time" id="animeTestPlayerTime">0:00 / 0:00</div>
+                      </div>
+                      <div class="anime-player-controls-right">
+                        <button id="animeTestCcBtn" class="anime-player-btn hidden" type="button" aria-label="Captions" title="Captions">
+                          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM9.5 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5c.83 0 1.58.29 2.19.77l-1 1.16A2 2 0 0 0 9.5 10a2 2 0 1 0 0 4 2 2 0 0 0 1.19-.43l1 1.16c-.61.48-1.36.77-2.19.77zm7 0c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5c.83 0 1.58.29 2.19.77l-1 1.16A2 2 0 0 0 16.5 10a2 2 0 1 0 0 4 2 2 0 0 0 1.19-.43l1 1.16c-.61.48-1.36.77-2.19.77z"/></svg>
+                        </button>
+                        <div class="anime-player-settings-wrap">
+                          <button id="animeTestSettingsBtn" class="anime-player-btn" type="button" aria-label="Settings">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.5.5 0 0 0 .12-.61l-1.92-3.32a.5.5 0 0 0-.58-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.5.5 0 0 0-.58.22L2.74 8.87a.5.5 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.5.5 0 0 0-.12.61l1.92 3.32c.14.24.44.34.58.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .44-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.24.12.54.02.58-.22l1.92-3.32a.5.5 0 0 0-.12-.61l-2.01-1.58zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/></svg>
+                          </button>
+                          <div id="animeTestSettingsMenu" class="anime-player-menu hidden"></div>
+                        </div>
+                        <button id="animeTestPipBtn" class="anime-player-btn" type="button" aria-label="Picture in picture" title="Picture in picture">
+                          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 7H9c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 8H9V9h10v6zM3 5h12v2H3v13h18v-6h2v6c0 1.1-.9 2-2 2H3c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2z"/></svg>
+                        </button>
+                        <button id="animeTestFullscreenBtn" class="anime-player-btn" type="button" aria-label="Fullscreen" title="Fullscreen">
+                          <svg viewBox="0 0 24 24" fill="currentColor" class="icon-fs-enter"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                          <svg viewBox="0 0 24 24" fill="currentColor" class="icon-fs-exit hidden"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="anime-watch-action-bar">
+                  <div class="anime-watch-now-playing">
+                    <span id="animeTestEpisodeMeta"></span>
+                    <span id="animeTestScoreMeta"></span>
+                  </div>
+                  <div class="anime-watch-action-buttons">
+                    <button id="animeTestTheaterBtn" class="anime-action-btn" type="button" title="Hide the sidebars for a bigger player">&#9974; Theater</button>
+                    <button id="animeTestKeysBtn" class="anime-action-btn" type="button" title="Keyboard shortcuts">&#8963; Keys</button>
+                    <label class="anime-action-toggle"><input type="checkbox" id="animeTestAutoplayToggle" checked> Auto Next</label>
+                    <label class="anime-action-toggle"><input type="checkbox" id="animeTestAutoSkipToggle"> Auto Skip</label>
+                  </div>
+                </div>
+
+                <div class="anime-watch-server-row">
+                  <div class="anime-pill-group" id="animeTestLangPillGroup">
+                    <button type="button" class="anime-pill active" data-lang="sub">SUB</button>
+                    <button type="button" class="anime-pill" data-lang="dub">DUB</button>
+                  </div>
+                  <!-- AniList/MyAnimeList links — pill-styled to match SUB/
+                       DUB (see _animeTestRenderStats in ui-anime-test.js,
+                       which builds these as anchors with class="anime-pill"
+                       now instead of btn btn-secondary) rather than sitting
+                       in their own row further down. -->
+                  <div id="animeTestLinks" class="anime-watch-links"></div>
+                  <!-- Server switching and quality both moved into the
+                       player's own Settings menu (gear icon — see
+                       _animePlayerRenderServerMenu/-QualityMenu in
+                       ui-anime-test.js) instead of a separate pill row +
+                       dropdown here, so there's one place for both instead
+                       of two. The controls below are what those menu items
+                       actually proxy into — kept in the DOM (just visually
+                       hidden) so every existing .value/.checked read and
+                       the onchange wiring keeps working unchanged. -->
+                  <!-- zokoanime deliberately not offered here as a static
+                       fallback option (unlike AniZone/AnimePahe) — see the
+                       TODO(security) comment on DEFAULT_VISIBLE_ANIME_
+                       PROVIDERS in ui-anime-test.js. JS repopulates this
+                       select's real options on load either way. -->
+                  <select id="animeTestProviderSelect" class="sr-only-control">
+                    <option value="anizone">1 (AniZone)</option>
+                    <option value="animepahe">2 (AnimePahe)</option>
+                  </select>
+                  <input type="checkbox" id="animeTestDubToggle" class="sr-only-control">
+                  <select id="animeTestQualitySelect" class="sr-only-control"></select>
+                </div>
+
+                <!-- BELOW the video/pills, still inside the center column —
+                     the synopsis, moved here from the left info card and
+                     shown in full (no collapse/truncate anymore) since this
+                     column has real width for it. Naturally ends up close
+                     to the left column's own height (which now ends at
+                     Studios, its last stats row) since the 3 action
+                     buttons + AniList/MyAnimeList that used to sit below
+                     this spot moved to the left column and the SUB/DUB row
+                     above respectively — one fewer thing competing for
+                     height here. -->
+                <p id="animeTestDescription" class="anime-watch-description"></p>
+              </div>
+
+              <!-- RIGHT — episode list. Wider than before now that the page
+                   itself uses the full viewport (see body.anime-watch-open
+                   in main-container.css) instead of being capped at 1220px,
+                   so more chips fit per row and the grid needs less
+                   internal scrolling. -->
+              <div class="anime-watch-sidebar" id="animeWatchEpisodeSidebar">
+                <div class="anime-watch-episode-list-header">
+                  Episodes <span id="animeTestEpisodeCountBadge" class="anime-watch-ep-count-badge"></span>
+                  <button class="btn-check-integrity" id="refreshAnimeBtn" title="Refresh this anime's episode count" style="margin-left:auto">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    Refresh
+                  </button>
+                </div>
+                <div class="anime-episode-toolbar">
+                  <select id="animeTestEpisodeRange" class="form-control hidden"></select>
+                  <input id="animeTestEpisodeFilter" class="form-control" placeholder="Filter episodes...">
+                </div>
+                <div id="animeTestEpisodeList" class="anime-episode-grid"></div>
+              </div>
+            </div>
+
+            <div id="animeSeasonsSection" class="hidden" style="margin-top:28px;">
+              <div class="anime-watch-episode-list-header">Seasons</div>
+              <div id="animeSeasonsRow" class="popular-row"></div>
+            </div>
+
+            <!-- Movies found in the same franchise chain the Seasons walk
+                 already discovers (e.g. Dragon Ball Z movies when viewing a
+                 Dragon Ball Z season) — see _animeTestExpandSeasonChain. -->
+            <div id="animeMoviesSection" class="hidden" style="margin-top:28px;">
+              <div class="anime-watch-episode-list-header">Movies</div>
+              <div id="animeMoviesRow" class="popular-row"></div>
+            </div>
+
+            <div id="animeRecommendedSection" class="hidden" style="margin-top:28px;">
+              <div class="anime-watch-episode-list-header">You Might Also Like</div>
+              <div id="animeRecommendedRow" class="popular-row"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- HISTORY VIEW — shares one page for manga and anime, toggled the
+             same way as Discover's #homeModeToggleBtn (see ui-anime-discover.js's
+             applyHomeMode). Persists as state.settings.historyMode. -->
+        <section id="view-history" class="view hidden">
+          <div class="page-container">
+            <h1 class="page-title" data-i18n="history.title">Reading History</h1>
+            <div id="historyMangaContent">
+              <div id="historyList" class="history-list"></div>
+            </div>
+            <div id="historyAnimeContent" class="hidden">
+              <div id="animeHistoryEmpty" class="hidden muted" style="padding:20px 0;">No watch activity yet.</div>
+              <div id="animeHistoryGrid" class="history-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CALENDAR VIEW — shares one page for manga and anime, same
+             toggle pattern as History (state.settings.calendarMode). The
+             two sides keep their own distinct layout (manga: full month
+             grid with release predictions; anime: simple soonest-first
+             list of real AniList airing dates) rather than being unified
+             into one grid — see ui-calendar.js's applyCalendarMode. -->
+        <section id="view-calendar" class="view hidden">
+          <div id="calendarMangaContent">
+            <div class="filters-row">
+              <div class="filter-group">
+                <label class="toggle-label">
+                  <span class="toggle-text">Hide manga with no confirmed release this month</span>
+                  <input type="checkbox" id="calHideNoScheduleToggle">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="calendar-page">
+              <div id="calendarContainer" class="calendar-container"></div>
+            </div>
+          </div>
+          <div id="calendarAnimeContent" class="hidden">
+            <div class="page-container">
+              <h1 class="page-title">Anime Calendar</h1>
+              <p class="setting-description" style="margin-bottom:16px;">Next airing episode for anime in My Anime, soonest first.</p>
+              <div id="animeCalendarStatus" class="search-status"></div>
+              <div id="animeCalendarEmpty" class="hidden muted" style="padding:20px 0;">Nothing currently airing in My Anime.</div>
+              <div id="animeCalendarGrid" class="results-grid"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SYSTEM HEALTH VIEW -->
+        <section id="view-system-health" class="view hidden">
+          <div class="page-container system-health-page">
+            <div class="sh-head">
+              <h2 data-i18n="systemHealth.title">System Health</h2>
+              <div class="sh-actions">
+                <button class="btn secondary" id="systemHealthRefreshBtn" data-i18n="systemHealth.refreshBtn">Refresh Status</button>
+                <button class="btn secondary" id="systemHealthRunImageQualityBtn" data-i18n="systemHealth.runImageQualityBtn">Check Image Quality</button>
+                <button class="btn secondary" id="systemHealthRunDependencyCheckBtn" data-i18n="systemHealth.runDependencyCheckBtn">Check for Updates</button>
+                <button class="btn primary" id="systemHealthRunSmokeBtn" data-i18n="systemHealth.runSmokeBtn">Run Smoke Test</button>
+              </div>
+            </div>
+
+            <p id="systemHealthLoadState" class="sh-caption" data-i18n="systemHealth.status.notLoaded">Health status not loaded yet.</p>
+
+            <div class="sh-card-grid">
+              <article class="sh-card">
+                <h3 data-i18n="systemHealth.card.overall">Overall Status</h3>
+                <span id="systemHealthOverallBadge" class="sh-status-badge is-warning" data-i18n="systemHealth.status.warning">Warning</span>
+                <p class="sh-caption"><span data-i18n="systemHealth.label.timestamp">Timestamp</span>: <span id="systemHealthTimestamp">-</span></p>
+              </article>
+              <article class="sh-card">
+                <h3 data-i18n="systemHealth.card.database">Database Status</h3>
+                <span id="systemHealthDatabaseBadge" class="sh-status-badge is-warning" data-i18n="systemHealth.status.warning">Warning</span>
+                <p class="sh-caption"><span data-i18n="systemHealth.label.engine">Engine</span>: <span data-i18n="systemHealth.engine.jsonStore">JSON file store</span></p>
+              </article>
+              <article class="sh-card">
+                <h3 data-i18n="systemHealth.card.lastSmoke">Last Smoke Test</h3>
+                <span id="systemHealthSmokeBadge" class="sh-status-badge is-warning" data-i18n="systemHealth.status.warning">Warning</span>
+                <p class="sh-caption"><span data-i18n="systemHealth.label.executed">Executed</span>: <span id="systemHealthSmokeTimestamp" data-i18n="systemHealth.status.never">Never</span></p>
+              </article>
+              <article class="sh-card">
+                <h3 data-i18n="systemHealth.card.sources">Sources Status</h3>
+                <span id="systemHealthSourcesBadge" class="sh-status-badge is-warning" data-i18n="systemHealth.status.warning">Warning</span>
+                <p class="sh-caption"><span id="systemHealthSourcesSummary" data-i18n="systemHealth.status.noSourcesSummary">No sources detected</span></p>
+              </article>
+              <article class="sh-card">
+                <h3 data-i18n="systemHealth.card.imageQuality">Image Quality</h3>
+                <span id="systemHealthImageQualityBadge" class="sh-status-badge is-warning" data-i18n="systemHealth.status.warning">Warning</span>
+                <p class="sh-caption"><span data-i18n="systemHealth.label.executed">Executed</span>: <span id="systemHealthImageQualityTimestamp" data-i18n="systemHealth.status.never">Never</span></p>
+              </article>
+              <article class="sh-card">
+                <h3 data-i18n="systemHealth.card.dependencyCheck">Dependency Updates</h3>
+                <span id="systemHealthDependencyCheckBadge" class="sh-status-badge is-warning" data-i18n="systemHealth.status.warning">Warning</span>
+                <p class="sh-caption"><span data-i18n="systemHealth.label.executed">Executed</span>: <span id="systemHealthDependencyCheckTimestamp" data-i18n="systemHealth.status.never">Never</span></p>
+              </article>
+            </div>
+
+            <section class="sh-section">
+              <h3 data-i18n="systemHealth.section.sources">Sources Diagnostics</h3>
+              <div id="systemHealthSourcesGrid" class="sh-modules-grid"></div>
+            </section>
+
+            <section class="sh-section">
+              <h3 data-i18n="systemHealth.section.animeSources">Anime Sources Diagnostics</h3>
+              <div id="systemHealthAnimeGrid" class="sh-modules-grid"></div>
+            </section>
+
+            <section class="sh-section">
+              <h3 data-i18n="systemHealth.section.services">External Services</h3>
+              <div id="systemHealthServicesGrid" class="sh-modules-grid"></div>
+            </section>
+
+            <section class="sh-section">
+              <h3 data-i18n="systemHealth.section.imageQuality">Image Quality</h3>
+              <p class="sh-caption" data-i18n="systemHealth.imageQuality.hint">Checks a real cover and chapter page per source against the last known-good size, so a source that quietly starts serving lower-quality images shows up here instead of passing silently. Not run automatically — use "Check Image Quality" above (can take up to a minute).</p>
+              <div id="systemHealthImageQualityGrid" class="sh-modules-grid">
+                <p class="sh-empty" data-i18n="systemHealth.status.noImageQuality">Not checked yet.</p>
+              </div>
+            </section>
+
+            <section class="sh-section">
+              <h3 data-i18n="systemHealth.section.dependencyCheck">Dependency &amp; Tool Updates</h3>
+              <p class="sh-caption" data-i18n="systemHealth.dependencyCheck.hint">Checks the Node.js runtime, this app's own npm dependencies, and the CDN-pinned frontend libraries (PDF/EPUB reader) against their latest published versions — security and stability relevant, not just "is there something newer". Not run automatically — use "Check for Updates" above.</p>
+              <div id="systemHealthDependencyGrid" class="sh-modules-grid">
+                <p class="sh-empty" data-i18n="systemHealth.status.noDependencyCheck">Not checked yet.</p>
+              </div>
+            </section>
+
+            <section class="sh-section">
+              <div class="sh-head">
+                <h3 data-i18n="systemHealth.section.sourceErrors">Recent Source Errors</h3>
+                <div class="system-health-actions">
+                  <button class="btn secondary" id="systemHealthCopyErrorsBtn" data-i18n="systemHealth.copyErrorsBtn">Copy Diagnostics</button>
+                  <button class="system-health-clear-errors-btn" id="systemHealthClearErrorsBtn">Clear Logs</button>
+                </div>
+              </div>
+              <div id="systemHealthSourceErrors"></div>
+            </section>
+
+            <section class="sh-section">
+              <h3 data-i18n="systemHealth.section.modules">Module Availability</h3>
+              <div id="systemHealthModulesGrid" class="sh-modules-grid"></div>
+            </section>
+
+            <section class="sh-section">
+              <h3 data-i18n="systemHealth.section.messages">Warnings and Errors</h3>
+              <div id="systemHealthMessages"></div>
+            </section>
+
+            <section class="sh-section">
+              <h3 data-i18n="systemHealth.section.smokeChecks">Smoke Test Checks</h3>
+              <div class="sh-table-wrap">
+                <table class="sh-table" aria-label="Smoke test check results">
+                  <thead>
+                    <tr>
+                      <th data-i18n="systemHealth.table.id">ID</th>
+                      <th data-i18n="systemHealth.table.label">Label</th>
+                      <th data-i18n="systemHealth.table.status">Status</th>
+                      <th data-i18n="systemHealth.table.duration">Duration</th>
+                      <th data-i18n="systemHealth.table.details">Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="systemHealthSmokeTableBody">
+                    <tr><td colspan="5" class="sh-empty" data-i18n="systemHealth.status.noSmokeChecks">No smoke checks executed.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- ==================================================================
+           MANGA READER (fixed overlay)
+      ================================================================== -->
+      <div id="reader" class="reader hidden">
+        <canvas id="readerNoiseCanvas" class="reader-noise-canvas" aria-hidden="true"></canvas>
+        <img id="readerNoiseGif" class="reader-noise-gif" aria-hidden="true" alt="">
+        <div class="reader-topbar">
+          <div id="readerTitle" class="reader-title"></div>
+          <span id="readerIncognitoBadge" class="reader-incognito-badge" title="Incognito reading is on — no history, analytics or AniList sync" aria-hidden="true">&#128373;</span>
+        </div>
+
+        <button id="readerSidebarToggle" class="reader-sidebar-arrow" title="Show or hide reader panel" aria-label="Toggle reader panel">
+          &#10095;
+        </button>
+
+        <div class="reader-layout">
+          <button id="prevPageCorner" class="reader-corner-nav reader-corner-nav-left" aria-label="Previous page">
+            <span class="reader-corner-icon" aria-hidden="true">&#x25C0;</span>
+            <span class="reader-corner-label">Prev</span>
+          </button>
+
+          <button id="nextPageCorner" class="reader-corner-nav reader-corner-nav-right" aria-label="Next page">
+            <span class="reader-corner-label">Next</span>
+            <span class="reader-corner-icon" aria-hidden="true">&#x25B6;</span>
+          </button>
+
+          <div id="pageWrap" class="reader-content"></div>
+
+          <aside id="readerSidebar" class="reader-sidebar" aria-label="Reader controls">
+            <div class="reader-sidebar-section">
+              <p class="reader-sidebar-heading">Chapter</p>
+              <div class="reader-nav">
+                <button id="prevPage" class="btn-nav">&#x25C0; Prev</button>
+                <span id="pageCounter" class="page-info"></span>
+                <button id="nextPage" class="btn-nav">Next &#x25B6;</button>
+              </div>
+            </div>
+
+            <div class="reader-sidebar-section">
+              <p class="reader-sidebar-heading">Reading Mode</p>
+              <div class="reader-controls" id="readerQuickModeGroup">
+                <button class="btn-zoom reader-quick-mode-btn" data-mode="ltr" title="Left to Right">LTR</button>
+                <button class="btn-zoom reader-quick-mode-btn" data-mode="rtl" title="Right to Left (Manga)">RTL</button>
+                <button class="btn-zoom reader-quick-mode-btn" data-mode="webtoon" title="Webtoon (Vertical Scroll)">Webtoon</button>
+              </div>
+            </div>
+
+            <div class="reader-sidebar-section">
+              <p class="reader-sidebar-heading">Zoom</p>
+              <div class="reader-controls">
+                <button id="zoomOut" class="btn-zoom" title="Zoom out">&#x2212;</button>
+                <span id="zoomLevel" class="zoom-level">100%</span>
+                <button id="zoomIn" class="btn-zoom" title="Zoom in">+</button>
+                <button id="zoomReset" class="btn-zoom" title="Reset zoom">&#x2299;</button>
+              </div>
+            </div>
+
+            <div class="reader-sidebar-section">
+              <p class="reader-sidebar-heading">Auto Scroll</p>
+              <div class="reader-controls">
+                <button id="autoScrollToggle" class="btn-zoom btn-autoscroll" title="Start AutoScroll">Auto</button>
+              </div>
+              <div id="autoScrollBar" class="autoscroll-bar">
+                <span class="autoscroll-bar-label">Speed</span>
+                <div class="autoscroll-control">
+                  <div class="autoscroll-ticks">
+                    <span>Slow</span>
+                    <span>Medium</span>
+                    <span>Fast</span>
+                    <span>Faster</span>
+                    <span>Fastest</span>
+                  </div>
+                  <input type="range" id="autoScrollSpeed" class="autoscroll-slider" min="1" max="5" step="1" value="2">
+                </div>
+                <span id="autoScrollSpeedLabel" class="autoscroll-speed-label">Medium</span>
+              </div>
+            </div>
+
+            <div class="reader-sidebar-section">
+              <p class="reader-sidebar-heading">Privacy</p>
+              <div class="reader-controls">
+                <button id="readerIncognitoToggle" class="btn-zoom btn-autoscroll" title="Read without saving history, analytics, or AniList sync">Incognito</button>
+              </div>
+            </div>
+
+            <div class="reader-sidebar-section">
+              <p class="reader-sidebar-heading">Settings</p>
+              <button id="readerSettingsBtn" class="btn-nav btn-reader-settings">Open Settings</button>
+              <button id="closeReader" class="btn-nav btn-reader-close">Close Reader</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           EPUB READER (local book import) — separate from the manga/PDF
+           reader above: EPUB content reflows to the viewport/font size
+           instead of being discrete page images, so it gets its own
+           epub.js-backed viewer instead of the page-counter/spread engine.
+      ================================================================== -->
+      <div id="epubReader" class="reader epub-reader hidden">
+        <div class="reader-topbar">
+          <div id="epubReaderTitle" class="reader-title"></div>
+          <span id="epubIncognitoBadge" class="reader-incognito-badge" title="Incognito reading is on — no history, analytics or AniList sync" aria-hidden="true">&#128373;</span>
+        </div>
+
+        <button id="epubSidebarToggle" class="reader-sidebar-arrow" title="Show or hide reader panel" aria-label="Toggle reader panel">
+          &#10095;
+        </button>
+
+        <div class="reader-layout">
+          <button id="epubPrevCorner" class="reader-corner-nav reader-corner-nav-left" aria-label="Previous page">
+            <span class="reader-corner-icon" aria-hidden="true">&#x25C0;</span>
+          </button>
+          <button id="epubNextCorner" class="reader-corner-nav reader-corner-nav-right" aria-label="Next page">
+            <span class="reader-corner-icon" aria-hidden="true">&#x25B6;</span>
+          </button>
+
+          <div id="epubViewerWrap" class="epub-viewer-wrap">
+            <div id="epubViewer" class="epub-viewer"></div>
+          </div>
+
+          <aside id="epubSidebar" class="reader-sidebar" aria-label="EPUB reader controls">
+            <div class="reader-sidebar-section">
+              <p class="reader-sidebar-heading">Navigation</p>
+              <div class="reader-nav">
+                <button id="epubPrevBtn" class="btn-nav">&#x25C0; Prev</button>
+                <span id="epubProgress" class="page-info"></span>
+                <button id="epubNextBtn" class="btn-nav">Next &#x25B6;</button>
+              </div>
+            </div>
+
+            <div class="reader-sidebar-section">
+              <p class="reader-sidebar-heading">Text Size</p>
+              <div class="reader-controls">
+                <button id="epubFontDown" class="btn-zoom" title="Smaller text">A&minus;</button>
+                <span id="epubFontLevel" class="zoom-level">100%</span>
+                <button id="epubFontUp" class="btn-zoom" title="Larger text">A+</button>
+              </div>
+            </div>
+
+            <div class="reader-sidebar-section">
+              <p class="reader-sidebar-heading">Page Theme</p>
+              <div class="reader-controls">
+                <button id="epubThemeLight" class="btn-zoom" title="Light page">&#9728;</button>
+                <button id="epubThemeDark" class="btn-zoom" title="Dark page">&#9790;</button>
+              </div>
+            </div>
+
+            <div class="reader-sidebar-section">
+              <p class="reader-sidebar-heading">Search Book</p>
+              <input type="text" id="epubSearchInput" class="form-control epub-search-input" placeholder="Search text...">
+              <button id="epubSearchBtn" class="btn-nav">Search</button>
+              <div id="epubSearchResults" class="epub-search-results"></div>
+            </div>
+
+            <div class="reader-sidebar-section">
+              <p class="reader-sidebar-heading">Bookmarks</p>
+              <button id="epubAddBookmarkBtn" class="btn-nav">+ Add Bookmark</button>
+              <div id="epubBookmarksList" class="epub-bookmarks-list"></div>
+            </div>
+
+            <div class="reader-sidebar-section epub-toc-section">
+              <p class="reader-sidebar-heading">Table of Contents</p>
+              <div id="epubToc" class="epub-toc"></div>
+            </div>
+
+            <div class="reader-sidebar-section">
+              <p class="reader-sidebar-heading">Privacy</p>
+              <div class="reader-controls">
+                <button id="epubIncognitoToggle" class="btn-zoom btn-autoscroll" title="Read without saving history, analytics, or AniList sync">Incognito</button>
+              </div>
+            </div>
+
+            <div class="reader-sidebar-section">
+              <button id="closeEpubReader" class="btn-nav btn-reader-close">Close Reader</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           CONTEXT MENU (right-click on library cards)
+      ================================================================== -->
+      <div id="contextMenu" class="context-menu hidden">
+        <button class="context-item" data-action="mark-read" data-i18n="context.markRead">Mark as Read</button>
+        <button class="context-item" data-action="mark-unread" data-i18n="context.markUnread">Mark as Unread</button>
+        <div class="context-divider"></div>
+        <button class="context-item" data-action="remove" data-i18n="context.remove">Remove from Library</button>
+      </div>
+
+      <footer class="footer">
+        <div class="footer-content">
+          <p>&copy; 2026 ScrollScape. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Toast notification container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- ======================================================================
+       LOCAL MANGA IMPORT MODAL
+  ====================================================================== -->
+  <div id="importLocalModal" class="modal-overlay hidden">
+    <div class="modal-box import-modal-box">
+      <div class="modal-header">
+        <h3>&#128193; Import Local Manga</h3>
+        <button class="btn-close-modal" onclick="closeImportModal()">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div id="importDropZone" class="import-drop-zone" onclick="document.getElementById('importFileInput').click()">
+          <div class="import-drop-icon">&#128194;</div>
+          <p class="import-drop-label">Click or drag &amp; drop a file here</p>
+          <p class="import-drop-hint">Supported formats: <strong>CBZ &bull; CBR &bull; ZIP &bull; PDF &bull; EPUB</strong></p>
+          <div id="importFileName" class="import-file-name hidden"></div>
+        </div>
+        <input type="file" id="importFileInput" accept=".cbz,.cbr,.zip,.pdf,.epub" style="display:none" onchange="onImportFileSelected(event)">
+        <div class="import-form-group">
+          <label for="importTitleInput">Title <span class="import-optional">(optional — defaults to filename)</span></label>
+          <input type="text" id="importTitleInput" class="form-control" placeholder="Manga title...">
+        </div>
+        <div id="importProgress" class="import-progress hidden">
+          <div class="import-progress-bar"><div id="importProgressFill" class="import-progress-fill"></div></div>
+          <span id="importProgressLabel">Uploading...</span>
+        </div>
+        <div id="importError" class="import-error hidden"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeImportModal()">Cancel</button>
+        <button class="btn btn-primary" id="importSubmitBtn" onclick="submitImport()" disabled>Import</button>
+      </div>
+    </div>
+  </div>
+  <!-- ======================================================================
+       CUSTOMIZE LIBRARY CARD MODAL
+  ====================================================================== -->
+  <style>
+    .customize-modal-box {
+      max-width: 1040px;
+      width: 95%;
+    }
+    .customize-presets-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color, #374151);
+    }
+    .customize-presets-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .customize-modal-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr;
+      gap: 2rem;
+    }
+    .customize-modal-grid.customize-modal-grid-2col {
+      grid-template-columns: 1.3fr 1fr;
+    }
+    .customize-checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.5rem;
+    }
+    .customize-checkbox-grid .setting-item {
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 0.35rem 0.5rem;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .customize-checkbox-grid .setting-item:has(input:checked) {
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+    }
+    .customize-preview-frame {
+      background: var(--bg-tertiary);
+      border-radius: 10px;
+      padding: 1.2rem;
+      display: flex;
+      justify-content: center;
+    }
+    .customize-preview-frame .library-card,
+    .customize-preview-frame .manga-card {
+      width: 170px;
+    }
+    .customize-radio-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .customize-radio-label {
+      display: block;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color, #374151);
+      border-radius: 8px;
+      padding: 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .customize-radio-label input {
+      display: none;
+    }
+    .customize-radio-label:has(input:checked) {
+      background: color-mix(in srgb, var(--primary) 15%, transparent);
+      border-color: var(--primary);
+      color: var(--primary-light);
+    }
+    @media (max-width: 900px) {
+      .customize-modal-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .customize-preview-frame {
+        grid-column: 1 / -1;
+      }
+    }
+    @media (max-width: 640px) {
+      .customize-modal-grid {
+        grid-template-columns: 1fr;
+      }
+      .customize-presets-row {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+  <div id="customizeLibraryCardModal" class="modal-overlay hidden">
+    <div class="modal-box customize-modal-box">
+      <div class="modal-header">
+        <h3 data-i18n="library.customizeCard">Customize Library Card</h3>
+        <button class="btn-close-modal" id="btnCustomizeCardClose">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div class="customize-presets-row">
+          <span class="customize-presets-label" data-i18n="library.customize.presets">Presets:</span>
+          <button type="button" class="btn secondary lib-cust-preset-btn" data-preset="full" data-i18n="library.customize.presetFull">Full</button>
+          <button type="button" class="btn secondary lib-cust-preset-btn" data-preset="compact" data-i18n="library.customize.presetCompact">Compact</button>
+          <button type="button" class="btn secondary lib-cust-preset-btn" data-preset="minimal" data-i18n="library.customize.presetMinimal">Minimal</button>
+        </div>
+        <div class="customize-modal-grid">
+          <!-- Column 1: Fields -->
+          <div class="settings-group">
+            <h4 data-i18n="library.customize.fields">Visible fields</h4>
+            <div class="customize-checkbox-grid">
+              <label class="setting-item"><input type="checkbox" id="libCustAuthor"> <span data-i18n="library.customize.author">Author</span></label>
+              <label class="setting-item"><input type="checkbox" id="libCustSource"> <span data-i18n="library.customize.source">Source</span></label>
+              <label class="setting-item"><input type="checkbox" id="libCustTags"> <span data-i18n="library.customize.tags">Tags</span></label>
+              <label class="setting-item"><input type="checkbox" id="libCustDesc"> <span data-i18n="library.customize.description">Description</span></label>
+              <label class="setting-item"><input type="checkbox" id="libCustChapRead"> <span data-i18n="library.customize.chaptersRead">Chapters Read</span></label>
+              <label class="setting-item"><input type="checkbox" id="libCustChapUnread"> <span data-i18n="library.customize.chaptersUnread">Chapters Unread</span></label>
+              <label class="setting-item"><input type="checkbox" id="libCustChapTotal"> <span data-i18n="library.customize.totalChapters">Total Chapters</span></label>
+              <label class="setting-item"><input type="checkbox" id="libCustRating"> <span data-i18n="library.customize.rating">Rating</span></label>
+              <label class="setting-item"><input type="checkbox" id="libCustStatus"> <span data-i18n="library.customize.status">Status</span></label>
+            </div>
+
+            <h4 data-i18n="library.customize.buttons" style="margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Buttons</h4>
+            <div class="customize-checkbox-grid">
+              <label class="setting-item"><input type="checkbox" id="libCustBtnContinue"> <span data-i18n="library.customize.continueReadingButton">Continue Reading</span></label>
+              <label class="setting-item"><input type="checkbox" id="libCustBtnCategory"> <span data-i18n="library.customize.categoryButton">Category</span></label>
+            </div>
+          </div>
+          <!-- Column 2: Cover Sizes -->
+          <div class="settings-group">
+            <h4 data-i18n="library.customize.cover">Cover size</h4>
+            <div class="setting-item" style="display:block;">
+              <div class="customize-radio-group">
+                <label class="customize-radio-label"><input type="radio" name="libCustCoverDesktop" value="small"> <span data-i18n="library.customize.small">Small</span></label>
+                <label class="customize-radio-label"><input type="radio" name="libCustCoverDesktop" value="medium"> <span data-i18n="library.customize.medium">Medium</span></label>
+                <label class="customize-radio-label"><input type="radio" name="libCustCoverDesktop" value="large"> <span data-i18n="library.customize.large">Large</span></label>
+                <label class="customize-radio-label"><input type="radio" name="libCustCoverDesktop" value="xlarge"> <span data-i18n="library.customize.extraLarge">Extra Large</span></label>
+                <label class="customize-radio-label"><input type="radio" name="libCustCoverDesktop" value="xxlarge"> <span data-i18n="library.customize.huge">Huge</span></label>
+              </div>
+            </div>
+          </div>
+          <!-- Column 3: Live preview -->
+          <div class="settings-group">
+            <h4 data-i18n="library.customize.preview">Preview</h4>
+            <div class="customize-preview-frame">
+              <div class="library-card" id="libCustPreviewCard" style="cursor:default"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnCustomizeCardCancel" data-i18n="common.cancel">Cancel</button>
+        <button class="btn btn-primary" id="btnCustomizeCardSave" data-i18n="common.save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Same shell as #customizeLibraryCardModal, scoped to the fields an
+       anime card actually has (no chapters/rating/tags — see schema.js's
+       animeFavorites comment). No cover-size option: anime's grid has no
+       mangasPerRow-equivalent column-count setting to hook a preset into. -->
+  <div id="customizeAnimeLibraryCardModal" class="modal-overlay hidden">
+    <div class="modal-box customize-modal-box">
+      <div class="modal-header">
+        <h3>Customize Library Card</h3>
+        <button class="btn-close-modal" id="btnCustomizeAnimeCardClose">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div class="customize-presets-row">
+          <span class="customize-presets-label">Presets:</span>
+          <button type="button" class="btn secondary lib-cust-preset-btn" data-preset="full">Full</button>
+          <button type="button" class="btn secondary lib-cust-preset-btn" data-preset="compact">Compact</button>
+          <button type="button" class="btn secondary lib-cust-preset-btn" data-preset="minimal">Minimal</button>
+        </div>
+        <div class="customize-modal-grid customize-modal-grid-2col">
+          <div class="settings-group">
+            <h4>Visible fields</h4>
+            <div class="customize-checkbox-grid">
+              <label class="setting-item"><input type="checkbox" id="animeCustProgressBar"> <span>Progress bar</span></label>
+              <label class="setting-item"><input type="checkbox" id="animeCustEpisodeLabel"> <span>Episode label</span></label>
+              <label class="setting-item"><input type="checkbox" id="animeCustTags"> <span>Tags</span></label>
+              <label class="setting-item"><input type="checkbox" id="animeCustStatus"> <span>Status</span></label>
+            </div>
+          </div>
+          <div class="settings-group">
+            <h4>Preview</h4>
+            <div class="customize-preview-frame">
+              <div class="manga-card" id="animeCustPreviewCard" style="cursor:default"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnCustomizeAnimeCardCancel">Cancel</button>
+        <button class="btn btn-primary" id="btnCustomizeAnimeCardSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+    <script src="./customSelect.js?v=3" defer></script>
+  <script src="./achievement-manager.js" defer></script>
+  <script src="./themes.js" defer></script>
+
+  <!-- ScrollScape modules — loaded in dependency order, all before app.js -->
+  <script src="./modules/debug.js" defer></script>
+  <script src="./modules/api.js" defer></script>
+  <script src="./modules/i18n/locales/en-GB.js?v=47" defer></script>
+  <script src="./modules/i18n/locales/pt-PT.js?v=47" defer></script>
+  <script src="./modules/i18n/index.js" defer></script>
+  <script src="./edition.js" defer></script>
+  <script src="./modules/state.js?v=12" defer></script>
+  <script src="./modules/navigation.js" defer></script>
+  <script src="./modules/router.js" defer></script>
+  <script src="./modules/utils.js?v=15" defer></script>
+  <script src="./modules/anilist.js?v=26" defer></script>
+  <script src="./modules/anilist-anime-sync.js?v=2" defer></script>
+  <script src="./modules/anilist-status-restore.js?v=2" defer></script>
+  <script src="./modules/anilist-progress-restore.js?v=3" defer></script>
+  <script src="./modules/anilist-progress-sync.js?v=1" defer></script>
+  <script src="./modules/progress-sync.js?v=2" defer></script>
+  <script src="./modules/ui-analytics-wrapped.js?v=4" defer></script>
+  <script src="./modules/wrapped-anilist.js?v=3" defer></script>
+  <script src="./modules/ui-analytics-wrapped-anilist.js?v=4" defer></script>
+  <script src="./modules/wrapped-share-cards.js?v=5" defer></script>
+  <script src="./modules/ui-wrapped-share-modal.js?v=2" defer></script>
+
+  <script src="./modules/ui-themes.js?v=2" defer></script>
+  <script src="./modules/ui-settings.js?v=18" defer></script>
+  <script src="./modules/ui-discord-presence.js?v=6" defer></script>
+  <script src="./modules/ui-activity-tracker.js?v=1" defer></script>
+  <script src="./modules/ui-state.js?v=7" defer></script>
+  <script src="./modules/ui-discover.js?v=16" defer></script>
+  <script src="./modules/ui-history.js?v=6" defer></script>
+  <script src="./modules/ui-calendar.js?v=8" defer></script>
+  <script src="./modules/ui-autoscroll.js?v=2" defer></script>
+  <script src="./modules/ui-stats.js" defer></script>
+  <script src="./modules/ui-library-spines.js?v=1" defer></script>
+  <script src="./modules/ui-library-context-menu.js?v=5" defer></script>
+  <script src="./modules/ui-library.js?v=40" defer></script>
+  <script src="./modules/ui-library-cover-progress.js?v=5" defer></script>
+  <script src="./modules/ui-updates.js?v=10" defer></script>
+  <script src="./modules/ui-local-import.js?v=4" defer></script>
+  <script src="./modules/ui-reading-status.js?v=1" defer></script>
+  <script src="./modules/ui-search.js?v=26" defer></script>
+  <script src="./modules/ui-cover-picker.js?v=17" defer></script>
+  <script src="./modules/ui-add-to-list-modal.js?v=17" defer></script>
+  <script src="./modules/ui-chapter-navigation.js?v=1" defer></script>
+  <script src="./modules/ui-download-functions.js" defer></script>
+  <script src="./modules/ui-offline-save.js" defer></script>
+  <script src="./modules/ui-chapter-integrity-check.js" defer></script>
+  <script src="./modules/ui-anime-film-adaptation-check-via-anilist-graphql.js?v=4" defer></script>
+  <script src="./modules/reader-position.js?v=1" defer></script>
+  <script src="./modules/ui-library-tags.js?v=2" defer></script>
+  <script src="./modules/ui-reader-noise.js" defer></script>
+  <script src="./modules/ui-reader-page-rendering.js?v=11" defer></script>
+  <script src="./modules/ui-book-reader-rtl-double-page-spread-with-3d-page-flip.js?v=17" defer></script>
+  <script src="./modules/ui-ltr-western-double-page-spread-left-first-with-the-same-3-d-flip-engine.js?v=9" defer></script>
+  <script src="./modules/ui-pdf-reader.js?v=2" defer></script>
+  <script src="./modules/ui-epub-reader.js?v=6" defer></script>
+  <script src="./modules/ui-backup.js?v=5" defer></script>
+  <script src="./modules/ui-settings-cards-reading.js?v=1" defer></script>
+  <script src="./modules/ui-settings-cards-library.js?v=1" defer></script>
+  <script src="./modules/ui-settings-cards-theme-tracking.js?v=3" defer></script>
+  <script src="./modules/ui-settings-cards-sources.js?v=8" defer></script>
+  <script src="./modules/ui-settings-cards-system.js?v=3" defer></script>
+  <script src="./modules/ui-settings-modal-html.js?v=31" defer></script>
+  <script src="./modules/ui-settings-solver.js?v=3" defer></script>
+  <script src="./modules/ui-settings-source-import-html.js?v=9" defer></script>
+  <script src="./modules/ui-settings-source-import.js?v=9" defer></script>
+  <script src="./modules/ui-settings-source-link.js?v=6" defer></script>
+  <script src="./modules/ui-settings-source-repos.js?v=2" defer></script>
+  <script src="./modules/ui-settings-source-catalog-html.js?v=7" defer></script>
+  <script src="./modules/ui-settings-source-catalog.js?v=15" defer></script>
+  <script src="./modules/ui-settings-source-updates.js?v=2" defer></script>
+  <script src="./modules/ui-settings-suwayomi-local.js?v=2" defer></script>
+  <script src="./modules/ui-settings-anime-import.js?v=3" defer></script>
+  <script src="./modules/ui-settings-version.js?v=1" defer></script>
+  <script src="./modules/ui-settings-modal.js?v=43" defer></script>
+  <script src="./modules/ui-disabled-sources-sync.js?v=1" defer></script>
+  <script src="./modules/ui-custom-lists-view.js?v=11" defer></script>
+  <script src="./modules/ui-migrate.js?v=9" defer></script>
+  <script src="./modules/ui-cover-scan.js?v=10" defer></script>
+  <script src="./modules/ui-duplicates.js?v=2" defer></script>
+  <script src="./modules/ui-anime-duplicates.js?v=2" defer></script>
+  <script src="./modules/ui-anime-import.js?v=1" defer></script>
+  <script src="./modules/ui-analytics-view.js?v=3" defer></script>
+  <script src="./modules/ui-achievements.js?v=1" defer></script>
+  <script src="./modules/ui-dragon-ball-easter-egg-helpers.js" defer></script>
+  <script src="./modules/ui-shop-view.js" defer></script>
+  <script src="./modules/ui-genre-author-navigation.js?v=10" defer></script>
+  <script src="./modules/ui-similar-anilist.js?v=4" defer></script>
+  <script src="./modules/ui-anilist-match.js?v=1" defer></script>
+  <script src="./modules/ui-empty-sources.js?v=1" defer></script>
+  <script src="./modules/ui-taste-profile.js?v=1" defer></script>
+  <script src="./modules/ui-advanced-search.js?v=20" defer></script>
+  <script src="./modules/ui-anime-advanced-search.js?v=7" defer></script>
+  <script src="./modules/system-health/system-health-page.js?v=7" defer></script>
+  <script src="./modules/ui-view-management.js?v=16" defer></script>
+  <script src="./modules/ui-scroll-to-top.js" defer></script>
+  <script src="./modules/ui-ui-binding.js?v=19" defer></script>
+  <script src="./modules/ui-auth-gate.js?v=3" defer></script>
+  <!-- Before the start-up: main() in ui-initialization.js applies it as soon as the settings are read. -->
+  <script src="./modules/ui-initialization.js?v=9" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js" defer crossorigin="anonymous"></script>
+  <script src="./modules/ui-anime-test.js?v=50" defer></script>
+  <script src="./modules/ui-anime-library-context-menu.js?v=4" defer></script>
+  <script src="./modules/ui-anime-discover.js?v=11" defer></script>
+  <script src="./modules/ui-anime-seasons.js?v=5" defer></script>
+  <script src="./app.js?v=5" defer></script>
+</body>
+</html>

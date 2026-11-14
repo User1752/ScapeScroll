@@ -1,0 +1,690 @@
+/* ============================================================================
+   MANGA DETAILS PAGE
+   ============================================================================ */
+.manga-page {
+  padding: 2rem 0;
+}
+
+.btn-back {
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  transition: all 0.2s ease;
+  opacity: 0.92;
+}
+
+.btn-back:hover {
+  background-color: var(--primary-dark, var(--primary));
+  border-color: var(--primary-dark, var(--primary));
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.manga-detail-section {
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--bg-tertiary);
+  margin-bottom: 2rem;
+}
+
+.manga-details {
+  display: grid;
+  grid-template-columns: 480px 1fr;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.manga-cover {
+  width: 100%;
+  max-width: 480px;
+  position: sticky;
+  top: calc(60px + 2rem);
+  height: fit-content;
+}
+
+.manga-cover img {
+  width: 100%;
+  height: auto;
+  max-height: 650px;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.manga-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* Hide scrollbar but keep functionality */
+.manga-info::-webkit-scrollbar {
+  width: 6px;
+}
+
+.manga-info::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.manga-info::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--primary) 40%, transparent);
+  border-radius: 3px;
+}
+
+.manga-info::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--primary) 60%, transparent);
+}
+
+/* Firefox */
+.manga-info {
+  scrollbar-color: color-mix(in srgb, var(--primary) 40%, transparent) transparent;
+  scrollbar-width: thin;
+}
+
+.manga-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+/* A manga opened from the library whose source is turned off or not installed */
+.source-off-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0.4rem 0 0.7rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--warning);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+.source-off-notice svg { flex: none; color: var(--warning); margin-top: 0.1rem; }
+.source-off-notice strong { display: block; }
+.source-off-notice span { color: var(--text-secondary); }
+
+.manga-alt-title {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.manga-author {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.author-link {
+  cursor: pointer;
+  color: var(--accent);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+.author-link:hover {
+  color: #fff;
+}
+
+.manga-meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0.5rem 0;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--bg-tertiary);
+}
+
+.badge-success {
+  background-color: rgba(0, 208, 132, 0.15);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.badge-secondary {
+  background-color: rgba(153, 153, 153, 0.15);
+  border-color: var(--text-secondary);
+  color: var(--text-secondary);
+}
+
+.badge-source {
+  background-color: color-mix(in srgb, var(--primary) 15%, transparent);
+  border-color: var(--primary);
+  color: color-mix(in srgb, var(--primary-light) 72%, white 28%);
+}
+
+.badge-adaptation-check {
+  background-color: rgba(239, 68, 68, 0.12);
+  border-color: #ef4444;
+  color: #ef4444;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s, opacity 0.15s;
+}
+.badge-adaptation-check:hover {
+  background-color: rgba(239, 68, 68, 0.28);
+}
+.badge-adaptation-loading {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* Adaptation result panel */
+.adaptation-result {
+  margin: 0.75rem 0 0.25rem;
+  padding: 0.9rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  animation: fadeIn 0.2s ease;
+}
+.adaptation-none {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+.adaptation-result-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.65rem;
+  color: var(--text-primary);
+}
+.adaptation-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.adaptation-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem 0.5rem 0.5rem;
+  transition: background 0.15s, border-color 0.15s;
+  min-width: 0;
+}
+.adaptation-item:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+}
+.adaptation-cover {
+  width: 42px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.adaptation-cover-placeholder {
+  width: 42px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.adaptation-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.adaptation-item-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+.adaptation-item-meta {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.source-switch-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+  background: #1e1c27 !important;
+  color: color-mix(in srgb, var(--primary-light) 62%, white 38%) !important;
+  border: 1.5px solid var(--primary) !important;
+  border-radius: 8px !important;
+  padding: 0.42rem 0.75rem !important;
+  font-size: 0.88rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s !important;
+  white-space: nowrap !important;
+  letter-spacing: 0.01em !important;
+  line-height: 1.4 !important;
+}
+.source-switch-btn:hover {
+  border-color: var(--primary-light) !important;
+  background: #252232 !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 25%, transparent) !important;
+  color: #fff !important;
+}
+
+.source-switch-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.source-switch-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  min-width: 180px;
+  background: #1e1c27;
+  border: 1.5px solid var(--primary);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 2px 8px rgba(0,0,0,0.4);
+  z-index: 9999;
+  padding: 0;
+  overflow: hidden;
+  animation: csOpen 0.15s ease-out;
+}
+.source-switch-dropdown.hidden { display: none; }
+
+.source-switch-item {
+  display: block;
+  width: 100%;
+  padding: 0.68rem 1rem;
+  background: none;
+  color: #b0aac0;
+  border: none;
+  text-align: left;
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+.source-switch-item:hover {
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
+  color: color-mix(in srgb, var(--primary-light) 66%, white 34%);
+}
+.source-switch-item.active {
+  background: color-mix(in srgb, var(--primary) 74%, black 26%);
+  color: #fff;
+  font-weight: 600;
+}
+
+.manga-genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.genre-tag {
+  background-color: color-mix(in srgb, var(--primary) 15%, transparent);
+  border: 1px solid var(--primary);
+  color: var(--text-primary);
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+}
+
+.manga-description {
+  padding: 1rem 0;
+  border-top: 1px solid var(--bg-tertiary);
+  border-bottom: 1px solid var(--bg-tertiary);
+  position: relative;
+}
+
+.manga-description[data-expanded="false"] p {
+  max-height: 120px;
+  overflow: hidden;
+  position: relative;
+}
+
+.manga-description[data-expanded="false"] p::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, var(--bg-secondary));
+  pointer-events: none;
+}
+
+.manga-description p {
+  color: var(--text-secondary);
+  line-height: 1.8;
+  font-size: 0.95rem;
+  transition: max-height 0.3s ease;
+}
+
+.manga-description[data-expanded="true"] p {
+  max-height: none;
+}
+
+.manga-description[data-expanded="true"] p::after {
+  display: none;
+}
+
+.btn-expand-description {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0.5rem 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: color 0.15s;
+  margin-top: 0.5rem;
+}
+
+.btn-expand-description:hover {
+  color: #fff;
+}
+
+.manga-description[data-expanded="true"] .btn-expand-description {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.manga-description[data-expanded="true"] .btn-expand-description:hover {
+  color: var(--accent);
+}
+
+.manga-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+.btn-cover-picker {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--bg-tertiary) 82%, #111827) 0%, color-mix(in srgb, var(--primary) 28%, #111827) 100%);
+}
+
+.cover-picker-modal-content {
+  width: min(980px, 96vw);
+  max-width: 980px;
+  max-height: min(92vh, 900px);
+  overscroll-behavior: contain;
+}
+
+.cover-picker-body {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem 1.1rem 1.15rem;
+  min-height: 0;
+}
+
+.cover-picker-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.cover-picker-column-wide {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.cover-picker-label {
+  margin: 0;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.cover-picker-current {
+  aspect-ratio: 3 / 4;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
+  background: color-mix(in srgb, var(--bg-tertiary) 85%, transparent);
+}
+
+.cover-picker-current img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cover-picker-actions,
+.cover-picker-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.cover-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.75rem;
+  overflow-y: auto;
+  max-height: 52vh;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* a message in place of the cards ("limited", "no results") takes the whole row, not one 130 px column */
+.cover-picker-grid > p { grid-column: 1 / -1; text-align: center; }
+
+.cover-picker-grid::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.cover-picker-search-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.65rem;
+}
+
+.cover-picker-search-input {
+  min-width: 0;
+}
+
+.cover-picker-search-meta {
+  min-height: 1.2rem;
+  font-size: 0.84rem;
+}
+
+/* Indeterminate loading bar — search duration is unknown (varies a lot by
+   provider/source), so this shows an animated sliding fill rather than a
+   real percentage. Hidden by default, toggled via the .active class. */
+.cover-picker-loading-bar {
+  position: relative;
+  height: 3px;
+  border-radius: 99px;
+  background: var(--surface2);
+  overflow: hidden;
+  margin: 0.35rem 0 0.5rem;
+  display: none;
+}
+.cover-picker-loading-bar.active {
+  display: block;
+}
+.cover-picker-loading-bar-fill {
+  position: absolute;
+  top: 0;
+  left: -40%;
+  width: 40%;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+  animation: coverPickerLoadingSlide 1.1s ease-in-out infinite;
+}
+@keyframes coverPickerLoadingSlide {
+  0%   { left: -40%; }
+  100% { left: 100%; }
+}
+
+.cover-picker-load-more-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: 0.35rem;
+}
+
+.cover-choice-card {
+  border: 1px solid color-mix(in srgb, var(--primary) 16%, transparent);
+  background: color-mix(in srgb, var(--bg-tertiary) 88%, transparent);
+  color: var(--text-primary);
+  border-radius: 12px;
+  padding: 0.45rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cover-choice-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.cover-choice-thumb {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.cover-choice-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* the real size of the image, in a corner of it; amber when it is too small for a cover */
+.cover-choice-res {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.68);
+  color: #fff;
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.cover-choice-res:empty { display: none; }
+.cover-choice-card.is-small .cover-choice-res { background: rgba(180, 100, 10, 0.9); }
+.cover-picker-grid.hide-small .cover-choice-card.is-small { display: none; }
+.cover-picker-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.2rem 0 0.6rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.cover-picker-filter[hidden] { display: none; }
+.cover-picker-filter input { accent-color: var(--primary); }
+
+.cover-choice-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: left;
+}
+
+.cover-choice-source {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+@media (max-width: 820px) {
+  .cover-picker-body {
+    grid-template-columns: 1fr;
+  }
+
+  .cover-picker-grid {
+    max-height: 44vh;
+  }
+}
+
+html.cover-picker-open,
+body.cover-picker-open {
+  overflow: hidden !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html.cover-picker-open::-webkit-scrollbar,
+body.cover-picker-open::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.btn, .btn-reroll {
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: var(--btn-text, #fff);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.btn:hover:not(:disabled),
+.btn-reroll:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 40%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary-dark) 80%, black 20%) 0%, var(--primary-dark) 100%);
+}
+
+.btn:active:not(:disabled),
+.btn-reroll:active {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+

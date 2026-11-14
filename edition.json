@@ -1,0 +1,4 @@
+{
+  "_comment": "Which edition this build is: standard (what this code line does) or sourceless (no source bundled, an empty catalog, Hide NSFW on by default). tools/build-light.js writes this file into the folder it packages; leave it as it is in the repository.",
+  "edition": "standard"
+}

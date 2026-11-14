@@ -1,0 +1,4 @@
+{
+  "_comment": "The edition WITHOUT SOURCES bundles none: the person adds the repositories they want and chooses the sites in the source catalog. tools/build-light.js accepts an empty list only with --edition sourceless.",
+  "sources": []
+}

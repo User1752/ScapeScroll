@@ -1,0 +1,101 @@
+# Dependencies
+node_modules/
+
+# Python (tools/dashboard/)
+__pycache__/
+*.pyc
+
+# User data — never commit personal library, history or imported files
+data/store.json
+data/setup.json*
+data/local/
+data/cache/
+# The local copy of the library's covers (server/modules/covers/): pictures from the person's own library
+data/covers/
+data/tmp/
+data/theme-presets/
+# Automatic copies of store.json (server/modules/store/auto-backup.js): the whole store, secrets included.
+data/backups/
+# The reading progress (server/modules/progress/service.js), its temporary and set-aside files: personal data.
+data/reading-progress.json*
+data/error-log.json
+# This computer's own list of dangerous sites (one domain per line): the probe and peek never contact a listed site. Local to the machine.
+data/site-denylist.txt
+# Optional Suwayomi-Server companion container's own data dir (see
+# docker/docker-compose.yml's "suwayomi" profile) — its database/config,
+# not ScrollScape's.
+data/suwayomi/
+# Local/ (repo root) is where imported manga/books actually live today —
+# server.js migrates the old data/local/ into this new location on first
+# run. data/local/ above is kept for anyone still on an unmigrated copy.
+/Local/
+
+# Manga/comics source scrapers — self-contained plug-in .js files (the
+# source-loader auto-installs anything dropped in here, see
+# server/sourceLoader.js). Not tracked so the repo doesn't bundle
+# site-specific scraping code; anyone who wants a given source just needs
+# that one .js file.
+data/sources/
+# Source files the import tool has checked but not installed yet (server/modules/source-import/).
+data/source-staging/
+
+# Keep these data files tracked (app config, not user data)
+!data/achievements.json
+!data/icon-mapping.json
+!data/store.json.example
+
+# Temp / OS
+*.log
+.DS_Store
+Thumbs.db
+
+# Playwright e2e output (generated per test run, not source)
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Build output
+dist/
+
+# Node/VSCode
+.vscode/
+.env
+*.env
+docker/.env.suwayomi
+# A Suwayomi set up by tools/windows/Setup-Suwayomi.cmd when ScrollScape runs from the sources
+/Suwayomi/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Portable Node.js (auto-downloaded by build-exe.bat / Launch-ScrollScape.bat)
+tools/node/
+tools/node-staged/
+tools/node-previous/
+# pkg binary cache (populated by build-exe.bat)
+tools/pkg-cache/
+tools/npm-cache/
+# FlareSolverr portable binary (auto-downloaded by Launch-ScrollScape.bat)
+tools/flaresolverr/
+tools/flaresolverr-previous/
+
+# Diagnostic logs (generated data, not source)
+tools/freeze-monitor-*.csv
+
+# Planning artefacts / personal notes
+mvp.sql
+Todo.txt
+temp_check.html
+server.legacy.js
+todo
+ScrollScape_doc.md
+# Technical manual — kept local for personal organisation, not published.
+# Already-published chapters from before this line was added stay on
+# GitHub in old commits (that's a separate, much bigger history-rewrite
+# decision, not done here) — this only stops anything NEW from going up.
+manual-tecnico/
+
+# Runtime state the exe writes when it runs from a checkout
+data/.scrollscape.lock*
+/ScrollScape/

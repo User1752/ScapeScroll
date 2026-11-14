@@ -1,0 +1,946 @@
+/* ============================================================================
+   ANIME WATCH (Beta) — layout for view-anime-test's episode panel.
+   Two columns on desktop (player + episode-list sidebar, like most anime
+   streaming sites), stacking on narrow widths since the video needs to stay
+   the priority element there.
+   ============================================================================ */
+
+.anime-watch-panel {
+  margin-top: 24px;
+}
+
+.anime-watch-breadcrumb {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
+.anime-watch-breadcrumb .sep {
+  margin: 0 6px;
+  opacity: 0.5;
+}
+
+.anime-watch-breadcrumb-link {
+  color: inherit;
+  text-decoration: none;
+}
+.anime-watch-breadcrumb-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.anime-watch-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.anime-watch-player-col {
+  flex: 1 1 500px;
+  min-width: 0;
+}
+
+/* ── v2 layout: info card (left) + player (center) + episode list (right)
+   — three columns, all using real width now that the page itself escapes
+   the site-wide 1220px cap (see body.anime-watch-open in
+   main-container.css). Each column has enough room on its own that
+   nothing needs squeezing into a shared narrow sidebar or its own
+   internal scroll. ── */
+
+.anime-watch-layout-v2 {
+  align-items: flex-start;
+}
+
+.anime-watch-info-sidebar {
+  order: 1;
+  flex: 1 1 260px;
+  max-width: 300px;
+  min-width: 0;
+}
+
+.anime-watch-layout-v2 .anime-watch-player-col {
+  order: 2;
+}
+
+.anime-watch-layout-v2 .anime-watch-sidebar {
+  order: 3;
+  flex: 1 1 320px;
+  max-width: 380px;
+  min-width: 0;
+  /* Stretches to match whichever of the other two columns is taller
+     (info card or player+description) instead of a fixed pixel height —
+     a hardcoded value would be right at one viewport width and wrong at
+     every other, since the info card's own height varies with how much
+     it line-wraps. The other two columns stay align-items:flex-start
+     (their natural height), only this one grows to meet them. */
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* lets the grid's own overflow-y:auto work inside a stretched flex column */
+}
+
+/* Theater mode: hide both side columns, let the player breathe. Toggled by
+   the Theater button (ui-anime-test.js) via a class on the layout
+   container rather than on each sidebar individually, so it's one flag to
+   check instead of two. */
+.anime-watch-layout-v2.theater-mode .anime-watch-info-sidebar,
+.anime-watch-layout-v2.theater-mode .anime-watch-sidebar {
+  display: none;
+}
+.anime-watch-layout-v2.theater-mode .anime-watch-player-col {
+  flex-basis: 100%;
+}
+
+/* Links + action buttons row, now living below the player/pills instead
+   of stacked inside a narrow sidebar — a plain horizontal row fits
+   comfortably at the center column's width. */
+.anime-watch-actions-row {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.anime-watch-actions-row .btn {
+  width: auto;
+}
+.anime-watch-actions-row .anime-categories-dropdown-wrap .btn {
+  width: auto;
+}
+
+.anime-watch-player-wrap {
+  position: relative;
+}
+
+.anime-watch-player-col video {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+  border-radius: 12px;
+  display: block;
+}
+
+.anime-watch-skip-btn {
+  position: absolute;
+  right: 16px;
+  bottom: 76px; /* clears the custom control bar below */
+  z-index: 5;
+  background: color-mix(in srgb, var(--bg-card, #1a1a2e) 85%, transparent);
+  color: var(--text-primary, #fff);
+  border: 1px solid color-mix(in srgb, var(--primary, #8b5cf6) 40%, transparent);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.anime-watch-skip-btn:hover {
+  background: var(--primary, #8b5cf6);
+  transform: translateY(-1px);
+}
+
+.anime-watch-skip-btn.hidden {
+  display: none;
+}
+
+/* ── Custom player controls — replaces the native <video controls> bar.
+   Same <video> element hls.js/skip/analytics/quality logic already
+   targets; this is purely a UI layer wired up in ui-anime-test.js's
+   _initAnimePlayerControls(). ── */
+
+.anime-player-center-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: color-mix(in srgb, #000 55%, transparent);
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 6;
+  transition: background 0.15s, transform 0.15s;
+}
+.anime-player-center-btn svg {
+  width: 32px;
+  height: 32px;
+  margin-left: 3px; /* optical centering for the play triangle */
+}
+.anime-player-center-btn:hover {
+  background: color-mix(in srgb, var(--primary, #8b5cf6) 70%, #000);
+  transform: translate(-50%, -50%) scale(1.06);
+}
+.anime-player-center-btn.hidden {
+  display: none;
+}
+
+.anime-player-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  padding: 22px 12px 8px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.55) 60%, transparent);
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+/* Hidden while playing and idle (no mouse movement) — same convention as
+   every native/embedded player. JS toggles this class after a short
+   no-activity timeout; any mouse move or pause resets it. */
+.anime-watch-player-wrap.controls-idle .anime-player-controls,
+.anime-watch-player-wrap.controls-idle .anime-watch-skip-btn {
+  opacity: 0;
+  pointer-events: none;
+}
+.anime-watch-player-wrap.controls-idle {
+  cursor: none;
+}
+
+.anime-player-seek-row {
+  padding: 0 4px 6px;
+}
+.anime-player-seek-track {
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  background: color-mix(in srgb, #fff 25%, transparent);
+  cursor: pointer;
+  transition: height 0.1s ease;
+}
+.anime-player-seek-track:hover {
+  height: 6px;
+}
+.anime-player-seek-buffered,
+.anime-player-seek-played {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 2px;
+  pointer-events: none;
+}
+.anime-player-seek-buffered {
+  background: color-mix(in srgb, #fff 35%, transparent);
+  width: 0%;
+}
+.anime-player-seek-played {
+  background: var(--primary, #8b5cf6);
+  width: 0%;
+}
+.anime-player-seek-handle {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--primary, #8b5cf6);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary, #8b5cf6) 25%, transparent);
+}
+
+.anime-player-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 4px;
+}
+.anime-player-controls-left,
+.anime-player-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.anime-player-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.anime-player-btn svg {
+  width: 20px;
+  height: 20px;
+}
+.anime-player-btn:hover {
+  background: color-mix(in srgb, #fff 15%, transparent);
+}
+.anime-player-btn .hidden {
+  display: none;
+}
+
+.anime-player-volume-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.anime-player-volume-slider {
+  width: 0;
+  opacity: 0;
+  transition: width 0.15s ease, opacity 0.15s ease;
+  accent-color: var(--primary, #8b5cf6);
+  cursor: pointer;
+}
+.anime-player-volume-group:hover .anime-player-volume-slider,
+.anime-player-volume-group:focus-within .anime-player-volume-slider {
+  width: 70px;
+  opacity: 1;
+  margin-left: 4px;
+}
+
+.anime-player-time {
+  color: #fff;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  margin-left: 4px;
+}
+
+.anime-player-settings-wrap {
+  position: relative;
+}
+
+.anime-player-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  min-width: 220px;
+  max-width: 280px;
+  background: color-mix(in srgb, #0b0b12 92%, transparent);
+  border: 1px solid color-mix(in srgb, #fff 12%, transparent);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  font-size: 0.85rem;
+  color: #fff;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.anime-player-menu.hidden {
+  display: none;
+}
+
+.anime-player-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.anime-player-menu-item:hover {
+  background: color-mix(in srgb, #fff 10%, transparent);
+}
+.anime-player-menu-item-value {
+  color: color-mix(in srgb, #fff 55%, transparent);
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.anime-player-menu-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 1px solid color-mix(in srgb, #fff 12%, transparent);
+  margin-bottom: 4px;
+}
+.anime-player-menu-check {
+  color: var(--primary-light, var(--primary, #8b5cf6));
+  width: 16px;
+  text-align: center;
+}
+
+.anime-watch-info {
+  margin-top: 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.anime-watch-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  line-height: 1.3;
+}
+
+.anime-watch-meta {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.anime-watch-meta span + span::before {
+  content: "·";
+  margin: 0 6px;
+  opacity: 0.6;
+}
+
+/* "Check for Manga" result — an inline card, not a popup: window.open()
+   called after the AniList request's await is no longer a direct user
+   gesture in most browsers, so it silently gets popup-blocked. A real
+   <a href target=_blank> the user clicks themselves has no such problem. */
+.anime-manga-check-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--bg-secondary, #000) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  border-radius: 8px;
+  max-width: 70ch;
+}
+.anime-manga-check-card img {
+  width: 48px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.anime-manga-check-card-info {
+  flex: 1;
+  min-width: 0;
+}
+.anime-manga-check-card-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.anime-manga-check-card-title {
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.anime-watch-info-block {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+}
+.anime-watch-cover-thumb {
+  /* Full width of the info sidebar — the same width the description/stats
+     below it already use, so the whole column reads as aligned instead of
+     a narrower image floating above wider text. height:auto scales it
+     proportionally from there (no distortion, no cropping): a tall or
+     wide cover both just render at whatever height their own aspect
+     ratio produces at that width. */
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+.anime-watch-info-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Lives in the center column now (below the player/pills), shown in full
+   — no collapse/truncate. Previously sat in the narrow left sidebar with
+   a 4-line clamp + click-to-expand, since a long synopsis there pushed
+   the stats/genres/badges out of view; the center column has real width
+   for it instead. */
+.anime-watch-description {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: color-mix(in srgb, var(--bg-secondary, #000) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text-secondary) 15%, transparent);
+  border-radius: 8px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.anime-watch-description:empty {
+  display: none;
+}
+
+.anime-genre-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.anime-genre-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 3px 10px;
+  border: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.anime-genre-pill:hover {
+  background: color-mix(in srgb, var(--primary) 38%, transparent);
+}
+
+.anime-stats-grid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 6px 24px;
+  max-width: 640px;
+  font-size: 0.85rem;
+}
+
+.anime-stats-grid .stat-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--text-secondary) 12%, transparent);
+}
+
+.anime-stats-grid .stat-label {
+  color: var(--text-secondary);
+}
+
+.anime-stats-grid .stat-value {
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+/* Inline in the server-row now, next to the SUB/DUB pills — see
+   index.html's anime-watch-server-row and _animeTestRenderStats
+   (ui-anime-test.js), which builds these as anime-pill-styled anchors. */
+.anime-watch-links {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.anime-watch-links a.anime-pill {
+  text-decoration: none;
+}
+
+/* ── Info sidebar (v2 layout) — badges, actions ── */
+
+.anime-watch-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.anime-watch-badge-row:empty {
+  display: none;
+}
+
+.anime-watch-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.anime-watch-badge.status-releasing {
+  background: color-mix(in srgb, #22c55e 22%, transparent);
+  color: #22c55e;
+}
+.anime-watch-badge.status-finished {
+  background: color-mix(in srgb, var(--primary) 20%, transparent);
+  color: var(--primary-light, var(--primary));
+}
+.anime-watch-badge.status-not_yet_released,
+.anime-watch-badge.status-hiatus,
+.anime-watch-badge.status-cancelled {
+  background: color-mix(in srgb, var(--text-secondary) 20%, transparent);
+  color: var(--text-secondary);
+}
+
+.anime-watch-sidebar-actions {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.anime-watch-sidebar-actions .btn {
+  width: 100%;
+  justify-content: center;
+}
+.anime-watch-sidebar-actions .anime-categories-dropdown-wrap {
+  width: 100%;
+}
+.anime-watch-sidebar-actions .anime-categories-dropdown-wrap .btn {
+  width: 100%;
+}
+
+.anime-watch-ep-count-badge {
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border-radius: 5px;
+  padding: 1px 7px;
+  font-size: 0.72rem;
+  margin-left: 4px;
+}
+
+/* ── Action bar (center column, under the player) ── */
+
+.anime-watch-action-bar {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.anime-watch-now-playing {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+.anime-watch-now-playing span + span::before {
+  content: "·";
+  margin-right: 6px;
+  opacity: 0.6;
+}
+
+.anime-watch-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.anime-action-btn {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.anime-action-btn:hover {
+  border-color: color-mix(in srgb, var(--primary) 50%, transparent);
+}
+.anime-action-btn.active {
+  background: var(--primary);
+  color: var(--text-strong);
+}
+
+.anime-action-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ── Sub/Dub + server pills ── */
+
+.anime-watch-server-row {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.anime-pill-group {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.anime-pill {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 5px 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.anime-pill:hover {
+  color: var(--text-primary);
+}
+.anime-pill.active {
+  background: var(--primary);
+  color: var(--text-strong);
+}
+
+.anime-keys-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  background: var(--bg-secondary);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  border-radius: 8px;
+  padding: 10px 14px;
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.anime-keys-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 4px 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.anime-keys-row kbd {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 0.75rem;
+  font-family: inherit;
+  font-weight: 700;
+}
+
+/* Real <select>/<input> the pills proxy into — kept functional in the DOM
+   (every existing .value/.checked/onchange read in ui-anime-test.js still
+   targets these) but not shown, since the pills above are their visible
+   stand-ins. Selector needs to out-specificity ui-checkbox.css's global
+   `input[type="checkbox"]` rule (0,1,1) — a bare `input.sr-only-control`
+   (also 0,1,1) ties it and loses on source order (ui-checkbox.css loads
+   later in index.html), confirmed live: #animeTestDubToggle still
+   rendered as a plain visible 20x20 checkbox. The attribute-qualified
+   form below (0,2,1) wins outright regardless of load order. */
+select.sr-only-control,
+input[type="checkbox"].sr-only-control {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Episode grid (replaces the old single scrolling list — a 1000+
+   episode show like One Piece rendering that many rows was both slow and
+   unusable) ── */
+
+.anime-episode-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  min-width: 0; /* lets the row itself shrink inside the sidebar column instead of forcing it wider */
+}
+
+.anime-episode-toolbar select {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+}
+
+.anime-episode-toolbar input {
+  flex: 1 1 auto;
+  /* Without this, the input's own intrinsic min-width (a text <input>'s
+     browser-default floor, well over 100px) wins over flex-shrink and
+     pushes the toolbar wider than the sidebar column — confirmed live:
+     "Filter episodes..." ran off the right edge of the page instead of
+     shrinking to fit. min-width:0 is what actually lets a flex child
+     shrink below its content's natural size. */
+  min-width: 0;
+}
+
+.anime-episode-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  align-content: flex-start;
+  /* Fills whatever height .anime-watch-sidebar's align-self:stretch gives
+     the column (matching the taller of the info card / player+description
+     columns) instead of a fixed pixel value that would only be right at
+     one viewport width. min-height:0 is required for flex:1 + overflow-y
+     to actually cooperate inside a column flex container — without it the
+     grid refuses to shrink below its content's full height and the outer
+     column just grows instead of this scrolling internally. */
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.anime-episode-chip {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.anime-episode-chip:hover {
+  border-color: color-mix(in srgb, var(--primary) 50%, transparent);
+}
+
+.anime-episode-chip.watched {
+  background: color-mix(in srgb, var(--primary) 20%, var(--bg-tertiary));
+  color: var(--text-primary);
+}
+
+.anime-episode-chip.active {
+  background: var(--primary);
+  color: var(--text-strong);
+}
+
+.anime-episode-chip.filtered-out {
+  display: none;
+}
+
+/* ── My Anime library toolbar (M4 polish: status/category filters) ── */
+
+.anime-library-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.anime-library-toolbar select {
+  width: auto;
+}
+
+/* ── Categories dropdown (details page) ── */
+
+.anime-categories-dropdown-wrap {
+  position: relative;
+}
+
+.anime-categories-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  background: var(--bg-secondary);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  border-radius: 8px;
+  padding: 10px;
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.anime-categories-panel label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 2px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.anime-categories-panel .muted {
+  font-size: 0.82rem;
+  padding: 4px 2px;
+}
+
+.anime-watch-sidebar {
+  flex: 1 1 300px;
+  max-width: 340px;
+}
+
+.anime-watch-episode-list-header {
+  display: flex;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.anime-episode-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 640px;
+  overflow-y: auto;
+}
+
+.anime-episode-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.anime-episode-row:hover {
+  background: var(--bg-secondary);
+}
+
+.anime-episode-row.active {
+  background: color-mix(in srgb, var(--primary) 16%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 50%, transparent);
+}
+
+.anime-episode-row .ep-num {
+  flex: 0 0 34px;
+  height: 34px;
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+}
+
+.anime-episode-row.active .ep-num {
+  background: var(--primary);
+  color: var(--text-strong);
+}
+
+.anime-episode-row .ep-label {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}

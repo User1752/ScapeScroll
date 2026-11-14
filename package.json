@@ -1,0 +1,68 @@
+{
+  "name": "scrollscape",
+  "version": "3.6.0",
+  "private": true,
+  "main": "server.js",
+  "bin": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "start:prod": "NODE_ENV=production node server.js",
+    "test": "tools\\node\\node.exe --test tests/unit/**/*.test.js",
+    "test:watch": "tools\\node\\node.exe --test --watch tests/unit/**/*.test.js",
+    "test:e2e": "tools\\node\\node.exe node_modules\\@playwright\\test\\cli.js test",
+    "test:e2e:ui": "tools\\node\\node.exe node_modules\\@playwright\\test\\cli.js test --ui",
+    "lint": "tools\\node\\node.exe node_modules\\eslint\\bin\\eslint.js .",
+    "lint:fix": "tools\\node\\node.exe node_modules\\eslint\\bin\\eslint.js . --fix",
+    "smoke": "tools\\node\\node.exe tools/smoke-check.js",
+    "validate": "npm run lint && npm run smoke && npm run test",
+    "build:win": "pkg . --targets node24-win-x64   --output dist/ScrollScape-win.exe   --compress GZip && tools\\node\\node.exe tools/set-exe-icon.js dist/ScrollScape-win.exe",
+    "build:light": "tools\\node\\node.exe tools/build-light.js --target node24-win-x64 --output dist/ScrollScape-light-win.exe --icon",
+    "build:linux": "pkg . --targets node24-linux-x64 --output dist/ScrollScape-linux     --compress GZip",
+    "build:mac": "pkg . --targets node24-macos-x64 --output dist/ScrollScape-mac       --compress GZip",
+    "build:all": "npm run build:win && npm run build:linux && npm run build:mac",
+    "build:exe": "npm run build:win",
+    "build:uninstaller": "tools\\build-uninstaller.bat"
+  },
+  "pkg": {
+    "assets": [
+      "package.json",
+      "edition.json",
+      "public/**/*",
+      "data/achievements.json",
+      "data/icon-mapping.json",
+      "node_modules/node-unrar-js/esm/**/*",
+      "server/**/*.js",
+      "server/modules/source-import/generator/*.txt",
+      "server/modules/source-catalog/engine/*.txt",
+      "tools/windows/Setup-Suwayomi.cmd",
+      "sources-repo/**/*",
+      "tools/dashboard/dashboard.py",
+      "tools/dashboard/requirements.txt"
+    ],
+    "scripts": [
+      "data/sources/**/*.js"
+    ],
+    "outputPath": "dist"
+  },
+  "dependencies": {
+    "@xhayper/discord-rpc": "^1.5.1",
+    "adm-zip": "^0.6.1",
+    "cheerio": "^1.0.0",
+    "compression": "^1.8.2",
+    "express": "^5.3.0",
+    "multer": "^2.5.0",
+    "node-unrar-js": "^2.0.2",
+    "playwright": "^1.65.0",
+    "protobufjs": "^8.8.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.0",
+    "@yao-pkg/pkg": "^6.24.0",
+    "eslint": "^10.14.0",
+    "globals": "^17.13.0",
+    "png-to-ico": "^3.0.2",
+    "resedit-cli": "^3.1.0"
+  }
+}

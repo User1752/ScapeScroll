@@ -1,0 +1,56 @@
+/* ============================================================================
+   MAIN CONTAINER
+   ============================================================================ */
+.main-container {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  min-height: calc(100vh - 120px);
+}
+
+/* The anime watch page's 3-column layout (info card / player / episode
+   list, see anime-watch.css) genuinely needs more than 1220px to give
+   each column real room instead of squeezing everything into a narrow
+   sidebar with its own internal scroll — same idea as reader-open/
+   cover-picker-open elsewhere in this file's sibling stylesheets, a
+   body class toggled by setView() (ui-view-management.js) only while
+   that one view is active, so every other page keeps its normal
+   reading-width cap. */
+body.anime-watch-open .main-container {
+  max-width: 1800px;
+}
+
+.view {
+  animation: fadeIn 0.3s ease;
+}
+
+.view.hidden {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* The home page (Discover, manga and anime) uses the whole width of the window instead of the 1220px a reading page is capped at: its rows of
+   covers are the point of the page, and the sides were wide empty bands on a large screen. The same override Library and Advanced Search use. */
+body:has(#view-discover:not(.hidden)) .main-container {
+  max-width: 100%;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+@media (max-width: 900px) {
+  body:has(#view-discover:not(.hidden)) .main-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

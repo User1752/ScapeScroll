@@ -1,0 +1,225 @@
+/* ============================================================================
+   EPUB READER
+   Reuses the base .reader / .reader-sidebar / .reader-corner-nav chrome
+   already styled in reader.css (same overlay, same collapsible sidebar,
+   same corner-tap buttons) — only the content viewer and TOC list below
+   are genuinely new to this reader.
+   ============================================================================ */
+
+.epub-viewer-wrap {
+  flex: 1;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  justify-content: center;
+  /* Extra top padding: .reader-title floats absolutely over this area
+     (see reader.css), and 1.5rem left it butting right up against the
+     first line of book text. */
+  padding: 3.25rem 3vw 1.5rem;
+  box-sizing: border-box;
+}
+
+.epub-viewer {
+  width: 100%;
+  max-width: 900px;
+  height: 100%;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  /* Fallback only: epub.js sizes its paginated columns to fit this box
+     exactly, so normally nothing overflows — but if it ever does (an
+     unusually tall inline element, an extreme font-size setting), auto
+     lets it scroll instead of silently clipping. */
+  overflow: auto;
+}
+
+/* EPUB pages are turned via corner taps or the sidebar buttons as the
+   primary navigation gesture — unlike the manga reader's corner-nav
+   (webtoon-only, shown on hover proximity), these should just always be
+   visible/clickable. */
+.epub-reader .reader-corner-nav {
+  opacity: 1;
+  pointer-events: auto;
+  bottom: 50%;
+  transform: translateY(50%);
+  min-width: 44px;
+  width: 44px;
+  height: 64px;
+  padding: 0;
+  border-radius: 10px;
+}
+
+.epub-reader .reader-corner-nav:hover {
+  transform: translateY(50%) scale(1.05);
+}
+
+/* With the sidebar open, its 310px panel occupies the same right: 18px
+   spot the "next page" button sits at by default — shift the button
+   clear of it instead of letting it float on top of the TOC list. */
+.epub-reader:not(.reader-sidebar-collapsed) .reader-corner-nav-right {
+  right: 328px;
+}
+
+@media (max-width: 900px) {
+  .epub-reader:not(.reader-sidebar-collapsed) .reader-corner-nav-right {
+    right: calc(min(88vw, 310px) + 18px);
+  }
+}
+
+/* Same "always visible" reasoning as the corner-nav above: the sidebar
+   toggle arrow normally only appears on mouse-proximity to its own
+   button (wired up for the manga/PDF reader in
+   _bindReaderArrowProximity), which was never wired for the EPUB reader
+   — leaving it permanently invisible and unclickable here. Skip that
+   whole proximity dance and just always show it.
+   Also moved up near the title instead of vertically centered: centered
+   is where the corner-nav buttons above now always sit too (right: 328px
+   vs. this button's 318px when the sidebar is open — a 24px horizontal
+   overlap at the same height), so the two were stacking on top of
+   each other. */
+.epub-reader .reader-sidebar-arrow {
+  opacity: 1;
+  pointer-events: auto;
+  top: 4rem;
+  transform: none;
+}
+
+.epub-reader:not(.reader-sidebar-collapsed) .reader-sidebar-arrow {
+  transform: rotate(180deg);
+}
+
+.epub-toc-section {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.epub-toc {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.epub-toc-item {
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.epub-toc-item:hover {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--text-primary);
+}
+
+.epub-search-input {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.82rem;
+  margin-bottom: 0.5rem;
+  box-sizing: border-box;
+}
+
+.epub-search-results {
+  margin-top: 0.55rem;
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.epub-search-result-item {
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  line-height: 1.35;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.epub-search-result-item:hover {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--text-primary);
+}
+
+.epub-search-result-item mark {
+  background: color-mix(in srgb, var(--primary) 45%, transparent);
+  color: var(--text-primary);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+.epub-search-status,
+.epub-search-empty,
+.epub-bookmarks-empty {
+  font-size: 0.78rem;
+  color: var(--text-on-dark-muted);
+  margin: 0.3rem 0 0;
+}
+
+.epub-bookmarks-list {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.epub-bookmark-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.epub-bookmark-jump {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.epub-bookmark-jump:hover {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--text-primary);
+}
+
+.epub-bookmark-remove {
+  flex: 0 0 auto;
+  background: transparent;
+  border: none;
+  color: var(--text-on-dark-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.3rem 0.45rem;
+  border-radius: 6px;
+}
+
+.epub-bookmark-remove:hover {
+  color: #ff6e6e;
+  background: rgba(255, 74, 74, 0.12);
+}

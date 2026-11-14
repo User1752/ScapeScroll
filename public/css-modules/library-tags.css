@@ -1,0 +1,105 @@
+/* ============================================================================
+   LIBRARY TAGS  –  the Tags button of the side column, and its filter panel
+   ============================================================================ */
+
+/* the gear beside the category filter */
+.library-cat-manage {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.6rem;
+  margin-left: -0.5rem; /* sits against the filter: the controls' own gap would set it apart */
+}
+
+.anime-library-toolbar .library-cat-manage { margin-left: 0; } /* the toolbar has its own gap */
+
+/* a tag filter is on: the button says so, and how many tags are picked */
+.lib-side-btn.active {
+  background: color-mix(in srgb, var(--primary, #8b5cf6) 22%, transparent);
+  color: var(--color-text, #fff);
+}
+
+.lib-side-btn.active .lib-side-svg {
+  opacity: 1;
+  stroke: var(--color-text, #fff);
+}
+
+.lib-tags-badge {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--primary, #8b5cf6);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.lib-tags-badge[hidden] { display: none; }
+
+/* the panel */
+.lib-tags-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.lib-tags-toolbar .input { flex: 1; min-width: 160px; }
+
+.lib-tags-mode { display: inline-flex; gap: 0.3rem; }
+
+.lib-tags-mode .btn.active {
+  background: var(--primary, #8b5cf6);
+  border-color: var(--primary, #8b5cf6);
+  color: #fff;
+}
+
+.lib-tags-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  max-height: 46vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px;
+}
+
+.lib-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--primary, #8b5cf6) 30%, transparent);
+  background: color-mix(in srgb, var(--bg-secondary, #1a1a2e) 80%, transparent);
+  color: var(--text, #ddd);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.lib-tag-chip:hover {
+  border-color: var(--primary, #8b5cf6);
+}
+
+.lib-tag-chip.active {
+  background: var(--primary, #8b5cf6);
+  border-color: var(--primary, #8b5cf6);
+  color: #fff;
+}
+
+.lib-tag-count {
+  font-size: 0.7em;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+
+.lib-tag-chip:focus-visible,
+.lib-tags-mode .btn:focus-visible {
+  outline: 2px solid var(--primary-light, #a78bfa);
+  outline-offset: 2px;
+}

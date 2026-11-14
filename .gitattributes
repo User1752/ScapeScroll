@@ -1,0 +1,2 @@
+# A batch file keeps its Windows line ends in the repository and in an export (a bare line feed can break its labels).
+tools/windows/*.cmd -text

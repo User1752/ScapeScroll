@@ -1,0 +1,20 @@
+{
+  "_comment": "Source ids the general-audience build bundles into the .exe. tools/build-light.js copies ONLY these from data/sources/ into the build; anything else sitting there (a source you keep for yourself) is left out. Add an id here to ship a new source.",
+  "sources": [
+    "allmanga",
+    "asurascans",
+    "batcave",
+    "comichubfree",
+    "demonicscans",
+    "flamecomics",
+    "kingofshojo",
+    "mangadex",
+    "mangahub",
+    "mangakatana",
+    "manganato",
+    "mangapill",
+    "manhuaplus",
+    "vortexscans",
+    "weebcentral"
+  ]
+}

@@ -1,0 +1,68 @@
+﻿services:
+  # ── ScrollScape ───────────────────────────────────────────────────
+  scrollscape:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: scrollscape
+    ports:
+      # Published on this computer only. The container itself listens on 0.0.0.0 (HOST in the
+      # Dockerfile, needed for the port mapping), so a bare "4000:4000" would put the app on
+      # every network the host is on. Behind the mapping every client looks remote to the app:
+      # set an Access Password (Settings) or the settings / install / backup routes answer 403.
+      # To let a phone on your own network in, change this to "4000:4000" AND set the password.
+      - "127.0.0.1:4000:4000"
+    volumes:
+      - ../data:/app/data
+      - ../public:/app/public
+    environment:
+      - PORT=4000
+      # The edition without sources: an empty catalog and Hide NSFW on from the start (server/config/edition.js).
+      - SCROLLSCAPE_EDITION=sourceless
+      # Empty unless you start FlareSolverr below: then FLARESOLVERR_URL=http://flaresolverr:8191/v1 (see the service). An address typed in
+      # Settings > Network & Anti-Bot always wins over this one.
+      - FLARESOLVERR_URL=${FLARESOLVERR_URL:-}
+    restart: unless-stopped
+
+  # ── FlareSolverr (optional) ──────────────────────────────────────────
+  # The hidden browser that gets the Cloudflare-protected sources (ComicHubFree, AnimePahe...) through. The app cannot install it inside
+  # this image (its automatic install is Windows-only), so it runs as a container of its own. Not started by `docker compose up`; opt in:
+  #
+  #   FLARESOLVERR_URL=http://flaresolverr:8191/v1 docker compose --profile flaresolverr up -d
+  #
+  # (or put FLARESOLVERR_URL=... in a .env file next to this one, and add --profile flaresolverr). FlareSolverr has NO password: it publishes
+  # no port here, so only the containers of this compose file can reach it; do not add a `ports:` line unless it is 127.0.0.1 only.
+  # Pinned to the version the app was checked against (3.5.2); a Chromium inside needs about 500 MB of memory while it works.
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:v3.5.2
+    container_name: flaresolverr
+    profiles: ["flaresolverr"]
+    environment:
+      - LOG_LEVEL=info
+      - TZ=Etc/UTC
+    restart: unless-stopped
+
+  # ── Suwayomi-Server (optional) ───────────────────────────────────────
+  # Runs the extensions of the Mihon-compatible repositories for ScrollScape (the extension engine) —
+  # see the README's "Suwayomi" section. Not started by `docker compose up` on its own; opt in
+  # with `docker compose --profile suwayomi up`, then point ScrollScape at
+  # it via Settings -> Suwayomi -> Suwayomi Server URL (http://suwayomi:4567
+  # from inside this compose network). AUTH_MODE=basic_auth is recommended
+  # if this port is reachable from anywhere you don't fully trust — ScrollScape
+  # doesn't support Suwayomi's cookie-based Simple Login mode.
+  suwayomi:
+    image: ghcr.io/suwayomi/suwayomi-server:stable
+    container_name: suwayomi
+    profiles: ["suwayomi"]
+    environment:
+      - TZ=Etc/UTC
+      # - AUTH_MODE=basic_auth
+      # - AUTH_USERNAME=manga
+      # - AUTH_PASSWORD=change-me
+    volumes:
+      - ../data/suwayomi:/home/suwayomi/.local/share/Tachidesk
+    ports:
+      # ScrollScape reaches Suwayomi over the compose network (http://suwayomi:4567); this host
+      # port is only for Suwayomi's own web UI, so keep it on this computer.
+      - "127.0.0.1:4567:4567"
+    restart: unless-stopped

@@ -1,0 +1,303 @@
+'use strict';
+__ORIGIN__
+// __NAME_TEXT__, read through the person's own Suwayomi-Server (the extension engine). Written by ScrollScape from its own template
+// (server/modules/source-catalog/engine/): the extension itself runs inside that server, not here; this file only asks it, with the address
+// and login saved in Settings -> Suwayomi. Nothing was copied from another app.
+//
+// Self-contained on purpose (no requires back into server/): a source installed at run time lives in data/sources/, outside the read-only
+// snapshot of a packaged exe, so it reads those settings from the running app (globalThis.ScrollScapeHost, set by server.js).
+// Images (covers, pages) are fetched by this app's /api/suwayomi/* routes, which add the login.
+
+const SOURCE_ID = __SOURCE_ID__; // the id Suwayomi gives the source: digits, as text
+const SITE = __NAME__;
+const SUPPORTS_LATEST = __SUPPORTS_LATEST__;
+const ADULT_ONLY = __ADULT_ONLY__; // the extension marks the whole source as adult: Hide NSFW hides it whole
+// Only for a command-line check of this file, where the running app is not there to ask: the port its HTTP route listens on.
+const SELF_PORT = Number(globalThis.ScrollScapePort) || 4000;
+const MANGA_ID_RE = /^\d{1,12}$/;
+const CHAPTER_ID_RE = /^(\d{1,12})-(\d{1,6})$/;
+// Categories that are never listed. Matched at the start of each word, so a rename or a multi-word name is caught too.
+const NEVER_LISTED_RE = /(^|[^a-z])(loli|shota|toddler)/i;
+const CONFIG_TTL_MS = 30000;
+// An extension asks its site when it is asked, so a list can be slow.
+const LIST_TIMEOUT_MS = 40000;
+const DETAIL_TIMEOUT_MS = 45000;
+const CHECK_TIMEOUT_MS = 10000;
+
+let cachedConfig = null;
+
+function httpError(message, statusCode) {
+  const e = new Error(message);
+  e.statusCode = statusCode;
+  return e;
+}
+
+// The saved settings: straight from the running app when it offers them (it does not need a login for that, and an Access Password makes its
+// HTTP settings route refuse a call that carries none), else through its loopback HTTP route (a command-line check of this file).
+async function readSettings() {
+  const host = globalThis.ScrollScapeHost;
+  if (host && typeof host.readSettings === 'function') return (await host.readSettings()) || {};
+  const res = await fetch(`http://127.0.0.1:${SELF_PORT}/api/settings`, { signal: AbortSignal.timeout(5000) });
+  return ((await res.json()) || {}).data || {};
+}
+
+async function getConfig() {
+  if (cachedConfig && Date.now() - cachedConfig.at < CONFIG_TTL_MS) return cachedConfig.value;
+  let value = null;
+  try {
+    const settings = await readSettings();
+    const baseUrl = String(settings.suwayomiUrl || '').trim().replace(/\/+$/, '');
+    if (baseUrl) value = { baseUrl, username: settings.suwayomiUsername || '', password: settings.suwayomiPassword || '' };
+  } catch (_) {
+    value = null;
+  }
+  cachedConfig = { value, at: Date.now() };
+  return value;
+}
+
+async function api(pathname, timeoutMs, post = null) {
+  const cfg = await getConfig();
+  if (!cfg) throw httpError('Suwayomi Server URL not configured (Settings -> Suwayomi).', 400);
+  const headers = cfg.username ? { Authorization: `Basic ${Buffer.from(`${cfg.username}:${cfg.password}`).toString('base64')}` } : {};
+  if (post) headers['Content-Type'] = 'application/json';
+  let res;
+  try {
+    res = await fetch(`${cfg.baseUrl}${pathname}`, { headers, signal: AbortSignal.timeout(timeoutMs), ...(post ? { method: 'POST', body: JSON.stringify(post) } : {}) });
+  } catch (err) {
+    throw new Error(`${SITE}: Suwayomi-Server is not reachable (${err.message})`, { cause: err });
+  }
+  if (res.status === 404) throw httpError('not found', 404);
+  if (res.status === 401) throw httpError('Suwayomi-Server refused the username or password.', 401);
+  if (!res.ok) throw Object.assign(new Error(`${SITE}: Suwayomi-Server answered ${res.status}`), { upstreamStatus: res.status });
+  return res.json();
+}
+
+// Suwayomi's own MangaStatus names.
+function mapStatus(status) {
+  const s = String(status || '').toUpperCase();
+  if (s === 'ONGOING') return 'ongoing';
+  if (s === 'COMPLETED' || s === 'LICENSED' || s === 'PUBLISHING_FINISHED') return 'completed';
+  if (s === 'ON_HIATUS') return 'hiatus';
+  if (s === 'CANCELLED') return 'cancelled';
+  return 'unknown';
+}
+
+// Some extensions list the people of a title among its tags ("Artist: Name"); they are people, not genres, and belong in the author field.
+const PERSON_TAG_RE = /^\s*(?:artists?|authors?|writers?)\s*:\s*(.+?)\s*$/i;
+const tagsOf = (manga) => (Array.isArray(manga.genre) ? manga.genre.slice(0, 40).map((g) => String(g).slice(0, 60)) : []);
+const genresOf = (manga) => tagsOf(manga).filter((g) => !PERSON_TAG_RE.test(g));
+// The author of a title: what the extension gives as author and artist, then the people it listed as tags, each once.
+const authorOf = (manga) => {
+  const seen = new Set();
+  const people = [manga.author, manga.artist, ...tagsOf(manga).map((g) => (PERSON_TAG_RE.exec(g) || [])[1])]
+    .flatMap((value) => String(value || '').split(','))
+    .map((name) => name.trim().slice(0, 80))
+    .filter((name) => name && !seen.has(name.toLowerCase()) && seen.add(name.toLowerCase()));
+  return people.slice(0, 10).join(', ');
+};
+const isNeverListed = (manga) => genresOf(manga).some((g) => NEVER_LISTED_RE.test(g));
+
+function mapManga(manga) {
+  return {
+    id: String(manga.id),
+    title: String(manga.title || '').slice(0, 300),
+    cover: `/api/suwayomi/thumbnail/${manga.id}`,
+    url: String(manga.realUrl || ''),
+    genres: genresOf(manga),
+    status: mapStatus(manga.status),
+    author: authorOf(manga),
+  };
+}
+
+function listOf(data) {
+  const list = (data && Array.isArray(data.mangaList) ? data.mangaList : []).filter((m) => m && Number.isInteger(m.id) && !isNeverListed(m));
+  return { results: list.map(mapManga), hasNextPage: !!(data && data.hasNextPage) };
+}
+
+// If 4 or more chapters share the same UTC hour it is not a publication time: null (never an invented date).
+function cleanPublishDates(timestamps) {
+  const perHour = new Map();
+  const ms = timestamps.map((t) => (Number(t) > 0 ? Number(t) : NaN));
+  ms.forEach((t) => { if (Number.isFinite(t)) perHour.set(Math.floor(t / 3600000), (perHour.get(Math.floor(t / 3600000)) || 0) + 1); });
+  return ms.map((t) => (!Number.isFinite(t) || t > Date.now() + 2 * 86400000 || perHour.get(Math.floor(t / 3600000)) > 3 ? null : new Date(t).toISOString()));
+}
+
+// A site with a single page answers the next page with the first one again, so a list that is read page by page would never end. When a page says
+// it is the last, that is remembered (for a few minutes, so a list that grows is read again), and a page past it is answered with nothing.
+const END_TTL_MS = 600000;
+const endOfList = new Map();
+async function pageOf(listKey, page, fetchPage) {
+  const n = Math.max(1, Number(page) || 1);
+  const end = endOfList.get(listKey);
+  if (end && Date.now() - end.at < END_TTL_MS && n > end.page) return { results: [], hasNextPage: false };
+  let out;
+  try {
+    out = listOf(await fetchPage(n));
+  } catch (err) {
+    // An extension answers a page that does not exist with an error (the server turns it into a 500) and not with an empty list. A failure past
+    // the first page is read as the end of the list, for this request only: nothing is remembered, so a passing failure does not shorten the list.
+    if (n > 1 && err && err.upstreamStatus === 500) return { results: [], hasNextPage: false };
+    throw err;
+  }
+  if (!out.hasNextPage) {
+    if (endOfList.size >= 100) endOfList.clear();
+    endOfList.set(listKey, { page: n, at: Date.now() });
+  }
+  return out;
+}
+
+const popular = (page) => pageOf('popular', page, (n) => api(`/api/v1/source/${SOURCE_ID}/popular/${n}`, LIST_TIMEOUT_MS));
+
+// What the extension's own filters offer (genres, status, sort), read from the Suwayomi-Server when this file was written: which position of its filter
+// list is which, and what each choice is. Data only. A choice becomes a "filter change" of the server's quick search: Select = the index of the
+// value; a check box = "true", a three-state box = "1" (include); a group = the change of one of its items, written as JSON; a sort = JSON.
+const FILTER_PLAN = __FILTER_PLAN__;
+
+// A tag the person typed: plain words, no comma (the extension reads a comma as the end of a tag), nothing that could start an exclusion.
+const TYPED_TAG_RE = /^[\p{L}\p{N}][\p{L}\p{N} '&.+!:()-]{0,38}$/u;
+const MAX_TYPED_TAGS = 5;
+
+function changesFor(orderBy, status, genreNames) {
+  const changes = [];
+  const applied = [];
+  const sort = FILTER_PLAN.sort;
+  const option = sort && orderBy ? sort.options.find((o) => o.value === orderBy) : null;
+  if (option) changes.push({ position: sort.position, state: sort.kind === 'sort' ? JSON.stringify({ index: option.index, ascending: option.ascending }) : String(option.index) });
+  const kind = FILTER_PLAN.status;
+  const index = kind && status ? kind.map[status] : undefined;
+  if (index !== undefined) changes.push({ position: kind.position, state: kind.kind === 'select' ? String(index) : JSON.stringify({ position: index, state: kind.kind === 'checkbox' ? 'true' : '1' }) });
+  // What the person picked from the extension's own genre list goes to that filter; any other word is a tag they typed, which goes to the extension's
+  // tag box when it has one (and is nothing when it has not).
+  const genres = FILTER_PLAN.genres;
+  const typed = [];
+  let unknown = false;
+  for (const name of genreNames) {
+    const item = genres ? genres.items.find((g) => g.name.toLowerCase() === name.toLowerCase()) : null;
+    if (!item) { typed.push(name); continue; }
+    // A select takes one genre; the others are not asked for (the list is of the first one).
+    if (genres.kind === 'select' && applied.length) continue;
+    changes.push({ position: genres.position, state: genres.kind === 'select' ? String(item.index) : JSON.stringify({ position: item.index, state: genres.kind === 'checkbox' ? 'true' : '1' }) });
+    applied.push(item.name);
+  }
+  if (typed.length) {
+    const words = typed.filter((tag) => TYPED_TAG_RE.test(tag) && !NEVER_LISTED_RE.test(tag)).slice(0, MAX_TYPED_TAGS);
+    if (FILTER_PLAN.tags && words.length === typed.length) {
+      changes.push({ position: FILTER_PLAN.tags.position, state: words.join(',') });
+      applied.push(...words);
+    } else {
+      unknown = true;
+    }
+  }
+  return { changes, unknown, applied };
+}
+
+// A search with the extension's filters: the word (may be empty) and the changes, read page by page like every other list.
+const filtered = (q, page, changes) => pageOf(`filter:${q.toLowerCase()}:${JSON.stringify(changes)}`, page, (n) => api(`/api/v1/source/${SOURCE_ID}/quick-search?pageNum=${n}`, LIST_TIMEOUT_MS, { searchTerm: q, filter: changes }));
+
+module.exports = {
+  meta: {
+    id: __ID__, name: __NAME__, version: '1.0.0', author: 'generated',
+    supportsTrending: true,
+    supportsPopularAllTime: true,
+    supportsLatestUpdates: SUPPORTS_LATEST,
+    supportsRecentlyAdded: false,
+    ui: {
+      filters: { orderBy: __UI_ORDER__, publicationStatus: __UI_STATUS__, contentRating: false, format: false, genres: __UI_GENRES_ON__ },
+      genres: __UI_GENRES__,
+      nsfwGenres: [],
+      nativeDates: false,
+      adultOnly: ADULT_ONLY,
+      customTags: __UI_CUSTOM_TAGS__,
+    },
+  },
+
+  // A word searches the source; no word is the source's own popular list. A sort or a status the app asks for (the ones the extension has) goes
+  // through the server's search with filters.
+  async search(query, page = 1, orderBy = '', filters = {}) {
+    const q = String(query || '').trim();
+    if (q && NEVER_LISTED_RE.test(q)) return { results: [], hasNextPage: false };
+    const { changes } = changesFor(String(orderBy || ''), String((filters && filters.publicationStatus) || ''), []);
+    if (changes.length) return filtered(q, page, changes);
+    if (!q) return popular(page);
+    const pageNum = Math.max(1, Number(page) || 1);
+    return pageOf(`search:${q.toLowerCase()}`, pageNum, (n) => api(`/api/v1/source/${SOURCE_ID}/search?searchTerm=${encodeURIComponent(q)}&pageNum=${n}`, LIST_TIMEOUT_MS));
+  },
+
+  // The titles of the genres asked for (with the sort and the status, when the app sends them). A genre the extension does not have, or a
+  // category that is never listed, gives nothing.
+  async byGenres(genres, orderBy = '', filters = {}, page = 1) {
+    const names = (Array.isArray(genres) ? genres : [genres]).map((g) => String(g || '').trim()).filter(Boolean);
+    if (!names.length || names.some((g) => NEVER_LISTED_RE.test(g))) return { results: [], hasNextPage: false };
+    const { changes, unknown, applied: asked } = changesFor(String(orderBy || ''), String((filters && filters.publicationStatus) || ''), names);
+    if (unknown || !changes.length) return { results: [], hasNextPage: false };
+    const list = await filtered('', page, changes);
+    // A card of a list rarely carries its genres, and the app keeps only the titles tagged with the genre asked for: the titles the server gave for
+    // these genres (and typed tags) are tagged with them.
+    return { results: list.results.map((title) => ({ ...title, genres: title.genres.concat(asked.filter((g) => !title.genres.some((have) => have.toLowerCase() === g.toLowerCase()))) })), hasNextPage: list.hasNextPage };
+  },
+
+  async trending() {
+    return { results: (await popular(1)).results };
+  },
+
+  async popularAllTime() {
+    return { results: (await popular(1)).results };
+  },
+
+  async latestUpdates() {
+    if (!SUPPORTS_LATEST) return { results: [] };
+    const data = await api(`/api/v1/source/${SOURCE_ID}/latest/1`, LIST_TIMEOUT_MS);
+    return { results: listOf(data).results };
+  },
+
+  async mangaDetails(mangaId) {
+    const id = String(mangaId || '');
+    if (!MANGA_ID_RE.test(id)) throw httpError('invalid title id', 400);
+    const manga = await api(`/api/v1/manga/${id}/full?onlineFetch=true`, DETAIL_TIMEOUT_MS);
+    // The server must have answered for the title asked: one of this source, with the id that was asked (a title of another id is not this one).
+    if (!manga || manga.sourceId !== SOURCE_ID || Number(manga.id) !== Number(id)) throw httpError(`"${id}" not found`, 404);
+    if (isNeverListed(manga)) throw httpError(`"${id}" not found`, 404);
+    return {
+      id: String(manga.id),
+      title: String(manga.title || '').slice(0, 300),
+      cover: `/api/suwayomi/thumbnail/${manga.id}`,
+      description: String(manga.description || ''),
+      status: mapStatus(manga.status),
+      genres: genresOf(manga),
+      author: authorOf(manga),
+      url: String(manga.realUrl || ''),
+    };
+  },
+
+  async chapters(mangaId) {
+    const id = String(mangaId || '');
+    if (!MANGA_ID_RE.test(id)) throw httpError('invalid title id', 400);
+    // onlineFetch: a title found by a search has never had its chapters read by Suwayomi.
+    const list = await api(`/api/v1/manga/${id}/chapters?onlineFetch=true`, DETAIL_TIMEOUT_MS);
+    const items = Array.isArray(list) ? list : [];
+    const dates = cleanPublishDates(items.map((c) => c.uploadDate));
+    return {
+      chapters: items.map((chapter, i) => ({
+        id: `${id}-${chapter.index}`,
+        name: String(chapter.name || ''),
+        chapter: chapter.chapterNumber != null && chapter.chapterNumber >= 0 ? String(chapter.chapterNumber) : '',
+        publishAt: dates[i],
+      })),
+    };
+  },
+
+  async pages(chapterId) {
+    const match = CHAPTER_ID_RE.exec(String(chapterId || ''));
+    if (!match) throw httpError('invalid chapter id', 400);
+    const chapter = await api(`/api/v1/manga/${match[1]}/chapter/${match[2]}`, DETAIL_TIMEOUT_MS);
+    const pageCount = Number(chapter && chapter.pageCount) || 0;
+    if (pageCount <= 0) throw new Error(`${SITE}: the extension returned no pages for this chapter (a site may show only the first part of a long album without a login)`);
+    return { pages: Array.from({ length: pageCount }, (_, index) => ({ index, img: `/api/suwayomi/page/${match[1]}/${match[2]}/${index}` })) };
+  },
+
+  // System Health asks this instead of searching: it only checks that the Suwayomi-Server still has this source loaded.
+  async healthCheck() {
+    await api(`/api/v1/source/${SOURCE_ID}`, CHECK_TIMEOUT_MS);
+    return { ok: true };
+  },
+};

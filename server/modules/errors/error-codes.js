@@ -1,0 +1,32 @@
+// Error code registry for ScrollScape external sources and backend
+'use strict';
+
+module.exports = {
+  MANGADEX_NO_RESULTS: 'ERROR-001',
+  MANGADEX_INVALID_RESPONSE: 'ERROR-002',
+  ANILIST_REQUEST_FAILED: 'ERROR-003',
+  MANGAUPDATES_REQUEST_FAILED: 'ERROR-004',
+  SOURCE_INVALID_CHAPTERS: 'ERROR-005',
+  COVER_PROXY_FAILED: 'ERROR-006',
+  LOCAL_IMPORT_FAILED: 'ERROR-007',
+  STORE_PERSISTENCE_FAILED: 'ERROR-008',
+  THEME_PRESET_FAILED: 'ERROR-009',
+  EXTERNAL_RATE_LIMITED: 'ERROR-010',
+  // MangaKatana specific errors
+  MANGAKATANA_NO_RESULTS: 'ERROR-011',
+  MANGAKATANA_INVALID_RESPONSE: 'ERROR-012',
+  MANGAKATANA_REQUEST_FAILED: 'ERROR-013',
+  // AllManga.To specific errors
+  ALLMANGATO_NO_RESULTS: 'ERROR-014',
+  ALLMANGATO_INVALID_RESPONSE: 'ERROR-015',
+  ALLMANGATO_REQUEST_FAILED: 'ERROR-016',
+  // ComicVine cover lookup
+  COMICVINE_REQUEST_FAILED: 'ERROR-017',
+  // League of Comic Geeks cover lookup (fallback when ComicVine has no match)
+  LOCG_REQUEST_FAILED: 'ERROR-018',
+  // FlareSolverr browser-session pool: the circuit opened, or a site blocked the solver
+  SOLVER_SESSION_FAILED: 'ERROR-019',
+  SOLVER_HOST_BLOCKED: 'ERROR-020',
+  // Source import: a file was refused by the checks, or could not be installed and was rolled back
+  SOURCE_IMPORT_FAILED: 'ERROR-021'
+};

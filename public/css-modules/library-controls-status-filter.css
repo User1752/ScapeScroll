@@ -1,0 +1,240 @@
+/* ============================================================================
+   LIBRARY CONTROLS + STATUS FILTER
+   ============================================================================ */
+.library-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.form-control-sm {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  min-width: 130px;
+  flex: initial;
+}
+
+.library-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.library-search-icon {
+  position: absolute;
+  left: 0.6rem;
+  color: var(--primary-light);
+  opacity: 0.9;
+  pointer-events: none;
+  font-size: 0.78rem;
+}
+
+.library-search-input {
+  min-width: 190px;
+  padding: 0.5rem 0.75rem 0.5rem 1.8rem;
+  border: 1px solid color-mix(in srgb, var(--primary) 45%, transparent);
+  border-radius: var(--radius, 8px);
+  background: color-mix(in srgb, var(--bg-secondary) 86%, transparent);
+  color: var(--text);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.library-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.library-search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+/* ── Floating vertical side action panel ───────────────────────────────────
+   Both #librarySideActions and #animeLibrarySideActions now live inside
+   this one #view-library section (merged behind the manga/anime toggle,
+   see ui-library.js's applyLibraryMode) — one rule covers both. */
+#view-library {
+  position: relative;
+}
+
+.library-side-actions {
+  position: fixed;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 120;
+  display: none;             /* shown only when library view is active */
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 10px;
+  background: color-mix(in srgb, var(--bg-card, var(--color-surface, #1a1a2e)) 70%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in srgb, var(--primary, #8b5cf6) 25%, transparent);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.library-side-actions.active {
+  display: flex;
+}
+
+.lib-side-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 80px;
+  padding: 10px 6px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: var(--text-secondary, var(--color-text-muted, #bdbdbd));
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  line-height: 1.1;
+  position: relative;
+}
+
+.lib-side-btn:hover {
+  background: color-mix(in srgb, var(--primary, #8b5cf6) 16%, transparent);
+  color: var(--color-text, #fff);
+  transform: translateY(-1px);
+}
+
+.lib-side-btn:active {
+  transform: translateY(1px);
+}
+
+.lib-side-svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--primary-light, var(--color-primary, #8b5cf6));
+  stroke-width: 2px;
+  opacity: 0.85;
+  transition: all 0.2s ease;
+}
+
+.lib-side-btn:hover .lib-side-svg {
+  opacity: 1;
+  transform: scale(1.1);
+  stroke: var(--color-text, #fff);
+}
+
+.lib-side-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: inherit;
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.lib-side-sublabel {
+  font-size: 0.5rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text-secondary, #bdbdbd) 50%, transparent);
+  margin-top: -3px;
+}
+
+.lib-side-divider {
+  width: 70%;
+  border: none;
+  border-top: 1px solid color-mix(in srgb, var(--primary, #8b5cf6) 20%, transparent);
+  margin: 4px auto;
+}
+
+.library-sort-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1398;
+}
+
+.library-sort-drawer {
+  position: fixed;
+  /* top/left set dynamically via JS relative to the sort button */
+  z-index: 1399;
+  background: var(--bg-secondary);
+  border: 1px solid color-mix(in srgb, var(--primary, #8b5cf6) 28%, transparent);
+  border-radius: 14px;
+  box-shadow:
+    -6px 8px 32px rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: column;
+  width: min(220px, 82vw);
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: librarySortDrawerSlideIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes librarySortDrawerSlideIn {
+  from { opacity: 0; transform: translateX(10px) scale(0.97); }
+  to   { opacity: 1; transform: translateX(0)   scale(1);    }
+}
+
+.library-sort-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem 0.7rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--primary, #8b5cf6) 18%, transparent);
+  flex-shrink: 0;
+}
+
+.library-sort-head h3 {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.library-sort-body {
+  padding: 0.65rem 0.75rem;
+}
+
+.library-sort-options {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.library-sort-option {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.88rem;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+
+.library-sort-option:hover {
+  border-color: var(--primary);
+}
+
+.library-sort-option.active {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--bg-tertiary));
+}
+
+.library-sort-check {
+  color: var(--primary);
+  font-weight: 700;
+}
+

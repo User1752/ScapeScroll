@@ -1,0 +1,175 @@
+/* ============================================================================
+   BOOK READER â€” RTL double-page spread + 3D flip
+   ============================================================================ */
+
+.book-reader-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  perspective: 3200px;
+  perspective-origin: 50% 46%;
+  user-select: none;
+}
+
+.book-spread {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  max-height: 84vh;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.04);
+  cursor: pointer;
+  transform-style: preserve-3d;
+}
+
+.book-side {
+  width: min(38vw, 480px);
+  overflow: hidden;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.book-side.book-left  { border-radius: 4px 0 0 4px; }
+.book-side.book-right { border-radius: 0 4px 4px 0; border-left: 1px solid rgba(255,255,255,0.07); }
+
+/* One side shown at a normal single-page reading size, its partner
+   deliberately left blank (see getBookSpread/getLTRSpread's solo
+   handling) — used when the partner turns out to be its own wide/
+   special scan rather than a true reading pair, instead of leaving both
+   squeezed into the usual half-width panels. Twice the normal .book-side
+   width — roughly what two panels would occupy together. */
+.book-side.book-side-solo {
+  width: min(76vw, 960px);
+}
+
+/* The other panel in a solo spread — collapsed to nothing so the solo
+   side's extra width isn't just sitting next to an equally-sized empty
+   panel (that left the solo page no bigger than before, just with a
+   blank strip beside it instead of the old squeezed neighbor). */
+.book-side.book-side-collapsed {
+  width: 0;
+  min-width: 0;
+  border: none;
+  overflow: hidden;
+}
+
+.book-page-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  max-height: 84vh;
+  /* Hidden until is-ready (ui-book-reader-rtl...js's _prepareBookImages)
+     confirms the image actually loaded — without this, a page reached
+     with the 3D flip animation OFF (a hard, instant DOM swap with nothing
+     to mask a decode gap) pops in abruptly the moment it's not already
+     fully cached, which reads as a blink/flash. For an already-cached
+     image is-ready lands before the very first paint, so this never
+     visibly delays anything — it only ever replaces a jarring pop with an
+     instant, clean reveal for a genuine cache miss. Deliberately NOT a
+     transition: this exact browser was already caught this session
+     reporting a permanently stale getComputedStyle() value for a
+     transitioning property overridden by a higher-specificity rule (see
+     the collapsible-description fix elsewhere in this app's history) even
+     though classList/rendering were correct — not worth the risk here
+     when a hard cut already solves the actual reported bug (the blink),
+     and a fade was only ever a nice-to-have on top of that. */
+  opacity: 0;
+}
+
+.book-page-img.is-ready {
+  opacity: 1;
+}
+
+/* Wide double-page source split across left/right panels.
+   Image scales by height (width: auto) becoming wider than each panel.
+   overflow: hidden on .book-side clips to the correct half.
+   Left panel: flex-start anchors image to left → shows left half.
+   Right panel: flex-end anchors image to right → shows right half. */
+.book-side.wide-source-left  { justify-content: flex-start; }
+.book-side.wide-source-right { justify-content: flex-end; }
+
+.book-page-img.wide-split-left,
+.book-page-img.wide-split-right {
+  height: 100%;
+  max-height: 84vh;
+  width: auto;
+  max-width: none;
+}
+
+/* Line sharpness filter levels â€” applied to both img and canvas (PDF) */
+.reader-content.sharp-1 img, .reader-content.sharp-1 canvas { filter: contrast(1.3); }
+.reader-content.sharp-2 img, .reader-content.sharp-2 canvas { filter: contrast(1.6) brightness(0.97); }
+.reader-content.sharp-3 img, .reader-content.sharp-3 canvas { filter: contrast(2.0) brightness(0.95); }
+
+/* Wide double-page scan: full-spread overlay */
+.book-wide-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.book-wide-overlay img {
+  max-width: 100%;
+  max-height: 84vh;
+  width: auto;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+.book-wide-overlay.visible {
+  opacity: 1;
+}
+
+.book-page-blank {
+  width: 100%;
+  height: 100%;
+  min-height: 60vh;
+  background: #1a1a1a;
+}
+
+.book-spine {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 100%;
+  background: linear-gradient(to right,
+    rgba(0,0,0,0.65),
+    rgba(255,255,255,0.09) 38%,
+    rgba(255,255,255,0.09) 62%,
+    rgba(0,0,0,0.65));
+  box-shadow: 0 0 12px rgba(0,0,0,0.6);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.book-flipper-face {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  background: #111;
+  /* subtle page-edge shading always present */
+  box-shadow: inset -6px 0 18px rgba(0,0,0,0.35);
+}
+
+.book-flipper-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(135deg, #1a1a1a 0%, #252525 50%, #1c1c1c 100%);
+  /* shading on the inner edge of the back side */
+  box-shadow: inset 6px 0 18px rgba(0,0,0,0.35);
+}

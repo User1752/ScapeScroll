@@ -1,0 +1,61 @@
+/* ============================================================================
+   RECENT & LATEST SECTIONS
+   ============================================================================ */
+.recent-section,
+.latest-section,
+.popular-section {
+  margin-bottom: 3rem;
+}
+
+.section-header,
+.popular-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid color-mix(in srgb, var(--primary) 20%, transparent);
+  position: relative;
+}
+
+.section-header::after,
+.popular-header::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  border-radius: 2px;
+}
+
+.section-header h3,
+.popular-header h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-header:has(.section-header-link) {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.section-header-link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary-light);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.section-header-link:hover {
+  text-decoration: underline;
+}
+
+
+
+
