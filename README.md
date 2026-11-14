@@ -1,8 +1,8 @@
-# ScrollScape
+# ScapeScroll
 
 A self-hosted manga and anime reader that comes with **no sources at all**. You bring the sites.
 
-ScrollScape reads your own files (CBZ, CBR, ZIP, PDF, EPUB), keeps your library and reading progress, syncs with AniList, and can read from online sites through source files you add yourself. This edition ships **none**: the catalog starts empty, nothing adult is listed until you turn that on, and every site in your library is one you chose.
+ScapeScroll reads your own files (CBZ, CBR, ZIP, PDF, EPUB), keeps your library and reading progress, syncs with AniList, and can read from online sites through source files you add yourself. This edition ships **none**: the catalog starts empty, nothing adult is listed until you turn that on, and every site in your library is one you chose.
 
 > This project does not host, index or distribute any content. A source is a small script that reads a public site the way a browser would. What you add, and whether you are allowed to read it, is up to you.
 
@@ -26,7 +26,7 @@ There is **no Suwayomi engine** in this edition, and so no Suwayomi tab.
 
 ### The portable `.exe` (Windows)
 
-Download `ScrollScapeSourceless-<version>-win.exe` from [Releases](../../releases), put it in a folder of its own (for example `Documents\ScrollScape`) and run it. Nothing is installed in Windows; the library lives in that folder. To remove it, close the app and delete the folder.
+Download `ScapeScroll-<version>-win.exe` from [Releases](../../releases), put it in a folder of its own (for example `Documents\ScrollScape`) and run it. Nothing is installed in Windows; the library lives in that folder. To remove it, close the app and delete the folder.
 
 Windows may say the publisher is unknown the first time (the app is not signed): *More info* → *Run anyway*.
 

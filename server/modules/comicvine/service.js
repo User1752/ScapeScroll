@@ -143,7 +143,7 @@ async function lookupCover({ title, year: explicitYear } = {}) {
 // directly with the same timeout convention as the rest of the app.
 async function fetchJsonWithUserAgent(url) {
   const res = await fetch(url, {
-    headers: { 'User-Agent': 'ScrollScape/1.0 (+https://github.com/User1752/scrollscape-sourceless)' },
+    headers: { 'User-Agent': 'ScrollScape/1.0 (+https://github.com/User1752/ScapeScroll)' },
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
   // ComicVine's rate-limit response ("...a tad bit gluttonous don't you
