@@ -6,7 +6,8 @@ const _BASE_THEMES = [
   { id: 'default', name: 'Default', desc: 'Classic purple theme', cost: 0, primary: '#913FE2', primaryDark: '#6F2598', primaryLight: '#A855F7', preview: 'linear-gradient(135deg,#913FE2,#A855F7)' },
 ];
 // Merge any community themes registered in themes.js (loaded before this file)
-const SHOP_THEMES = [..._BASE_THEMES, ...(window.COMMUNITY_THEMES || [])];
+// Every theme is free in this edition: nothing costs AP, and all of them are owned from the start.
+const SHOP_THEMES = [..._BASE_THEMES, ...(window.COMMUNITY_THEMES || [])].map((theme) => ({ ...theme, cost: 0 }));
 
 // Fire-and-forget push to the server-side wallet/theme store (see
 // server/modules/achievements/service.js's updateProgression) — keeps the
@@ -35,8 +36,7 @@ function spendAP(n)     {
 function getAvailableAP() { return Math.max(0, achievementManager.unlockedAchievements.size + getBonusAP() - getSpentAP()); }
 
 function getPurchasedThemes() {
-  try { return JSON.parse(localStorage.getItem('scrollscape_purchased_themes') || '["default"]'); }
-  catch { return ['default']; }
+  return SHOP_THEMES.map((theme) => theme.id);
 }
 function addPurchasedTheme(id) {
   const p = getPurchasedThemes();
